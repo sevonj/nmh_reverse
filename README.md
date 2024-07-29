@@ -6,7 +6,7 @@ Contains [Kaitai Struct](https://kaitai.io/) definitions.
 
 Requirements:
 - Game files: Extract the Wii disc image to ./filesystem with Dolphin Emulator.
-- Python, Poetry
+- Python, kaitaistruct package. Optionally manage deps with poetry.
 
 Known data:
 - `.GCL` files: World collisions
