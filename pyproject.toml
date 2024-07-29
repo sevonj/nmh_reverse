@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "nmh-reverse"
+version = "0.1.0"
+description = ""
+authors = ["sevonj <100710152+sevonj@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+kaitaistruct = "^0.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
