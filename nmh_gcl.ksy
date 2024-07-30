@@ -4,13 +4,13 @@ meta:
   encoding: utf-8
   endian: be
 doc: |
- No More Heroes World Collision
+  No More Heroes World Collision
 
 seq:
   - id: magic
-    contents: 'FLCG'
-  - contents: [1,0,0,0]
-  - contents: [0,0,0,0]
+    contents: "FLCG"
+  - contents: [1, 0, 0, 0]
+  - contents: [0, 0, 0, 0]
   - id: num_areas
     type: u2
   - id: num_materials
@@ -31,7 +31,7 @@ seq:
     type: area
     repeat: expr
     repeat-expr: num_areas
-    
+
 types:
   align:
     doc: |
@@ -121,4 +121,3 @@ types:
         type: fl_vector
       - id: v2
         type: fl_vector
-     
