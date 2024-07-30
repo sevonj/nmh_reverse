@@ -165,6 +165,8 @@ class NmhGcl(KaitaiStruct):
                 self.unk_vec_b = NmhGcl.FlVector(self._io, self, self._root)
 
             class Data1(KaitaiStruct):
+                """Contains references to collision tris."""
+
                 def __init__(self, _io, _parent=None, _root=None):
                     self._io = _io
                     self._parent = _parent
@@ -172,9 +174,9 @@ class NmhGcl(KaitaiStruct):
                     self._read()
 
                 def _read(self):
-                    self.unk_0 = self._io.read_u4be()
-                    self.unk_1 = self._io.read_u4be()
-                    self.unk_2 = self._io.read_u4be()
+                    self.off_a = self._io.read_u4be()
+                    self.off_b = self._io.read_u4be()
+                    self.off_col_tri = self._io.read_u4be()
                     self.unk_3 = self._io.read_u4be()
                     self.unkf_0 = self._io.read_f4be()
                     self.unkf_1 = self._io.read_f4be()

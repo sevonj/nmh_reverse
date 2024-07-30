@@ -124,12 +124,16 @@ types:
 
         types:
           data1:
+            doc: |
+              Contains references to collision tris.
             seq:
-              - id: unk_0
+              - id: off_a
+                doc: "Zero or offset of another entry of this list"
                 type: u4
-              - id: unk_1
+              - id: off_b
+                doc: "Zero or offset of another entry of this list"
                 type: u4
-              - id: unk_2
+              - id: off_col_tri
                 type: u4
               - id: unk_3
                 type: u4
