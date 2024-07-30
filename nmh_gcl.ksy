@@ -4,7 +4,9 @@ meta:
   encoding: utf-8
   endian: be
 doc: |
-  No More Heroes World Collision
+  FLGC
+  No More Heroes World Collisions
+  One distance unit appears to be 10m.
 
 seq:
   - id: magic
@@ -21,12 +23,6 @@ seq:
     type: material
     repeat: expr
     repeat-expr: num_materials
-  - id: area_headers
-    type: area_header
-    repeat: expr
-    repeat-expr: num_areas
-
-  - type: align(32)
   - id: areas
     type: area
     repeat: expr
@@ -64,66 +60,99 @@ types:
         type: f4
       - size: 20
 
-  area_header:
+  area:
     seq:
       - id: name
         type: strz
         size: 8
-      - size: 72
-
-  area:
-    seq:
-      - id: unk4
-        type: u4
-      - id: unk5
-        type: u4
-      - id: num_unknown1s
-        type: u4
-      - id: num_unknown2s
-        type: u4
-      - id: bbox_min
-        type: fl_vector
-      - id: bbox_max
-        type: fl_vector
-      - id: unknown1s
-        type: area_unknown1
-        repeat: expr
-        repeat-expr: num_unknown1s
-      - id: unknown2s
-        type: area_unknown2
-        repeat: expr
-        repeat-expr: num_unknown2s
-
-  area_unknown1:
-    seq:
-      - id: unk_0
-        type: u4
-      - id: unk_1
-        type: u4
-      - id: unk_2
-        type: u4
-      - id: unk_3
-        type: u4
       - id: unkf_0
         type: f4
-      - id: unkf_1
-        type: f4
-      - id: unkf_2
-        type: f4
-      - id: unkf_3
-        type: f4
-
-  area_unknown2:
-    seq:
       - id: unk_1
         type: u4
+      - contents: [0, 0, 0, 0, 0, 0, 0, 0]
       - id: unk_2
         type: u4
       - id: unk_3
         type: u4
-      - id: v0
+      - id: origin
         type: fl_vector
-      - id: v1
-        type: fl_vector
-      - id: v2
-        type: fl_vector
+      - contents: [0, 0, 0, 0]
+      - id: unkf_4
+        type: f4
+      - contents: [0, 0, 0, 0]
+      - id: off_data
+        type: u4
+      - contents: [0, 0, 0, 0]
+      - contents: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    instances:
+      data:
+        io: _root._io
+        pos: off_data
+        type: area_data
+
+    types:
+      area_data:
+        seq:
+          - id: off_data1
+            type: u4
+          - id: off_colmesh
+            type: u4
+          - id: num_data1
+            type: u4
+          - id: num_col_tris
+            type: u4
+          - id: unk_vec_a
+            type: fl_vector
+          - id: unk_vec_b
+            type: fl_vector
+
+        instances:
+          data1:
+            io: _root._io
+            pos: off_data1
+            type: data1
+            repeat: expr
+            repeat-expr: num_data1
+
+          col_mesh:
+            io: _root._io
+            pos: off_colmesh
+            type: col_tri
+            repeat: expr
+            repeat-expr: num_col_tris
+
+        types:
+          data1:
+            seq:
+              - id: unk_0
+                type: u4
+              - id: unk_1
+                type: u4
+              - id: unk_2
+                type: u4
+              - id: unk_3
+                type: u4
+              - id: unkf_0
+                type: f4
+              - id: unkf_1
+                type: f4
+              - id: unkf_2
+                type: f4
+              - id: unkf_3
+                type: f4
+
+          col_tri:
+            seq:
+              - id: unk_1
+                type: u4
+              - id: unk_2
+                type: u4
+              - id: unk_3
+                type: u4
+              - id: v0
+                type: fl_vector
+              - id: v1
+                type: fl_vector
+              - id: v2
+                type: fl_vector

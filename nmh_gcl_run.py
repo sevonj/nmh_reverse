@@ -22,20 +22,31 @@ def convert(in_path: str, out_dir: str):
         last_index = 0
 
         for i in range(gcl.num_areas):
-            area_header = gcl.area_headers[i]
-            f.write(f"o {area_header.name}_{i}\n")
+            area = gcl.areas[i]
+            f.write(f"o {area.name}_{i}\n")
 
             area = gcl.areas[i]
 
-            for tri in area.unknown2s:
-                f.write(f"v {tri.v0.x} {tri.v0.y} {tri.v0.z}\n")
-                f.write(f"v {tri.v1.x} {tri.v1.y} {tri.v1.z}\n")
-                f.write(f"v {tri.v2.x} {tri.v2.y} {tri.v2.z}\n")
+            for tri in area.data.col_mesh:
+                f.write(vert_2_obj(tri.v0, area.origin))
+                f.write(vert_2_obj(tri.v1, area.origin))
+                f.write(vert_2_obj(tri.v2, area.origin))
 
-            for ii in range(last_index, last_index + area.num_unknown2s):
+            for ii in range(last_index, last_index + area.data.num_col_tris):
                 f.write(f"f {ii * 3 + 1} {ii * 3 + 2} {ii * 3 + 3}\n")
 
-            last_index += area.num_unknown2s
+            last_index += area.data.num_col_tris
+
+
+def vert_2_obj(v: NmhGcl.FlVector, origin: NmhGcl.FlVector) -> str:
+    """
+    This bakes in object origin, because I don't think wavefront supports it.
+    Coords are divided by 10 because the unit seems to be 10m.
+    """
+    x = (v.x + origin.x) * 0.1
+    y = (v.y + origin.y) * 0.1
+    z = (v.z + origin.z) * 0.1
+    return f"v {x} {y} {z}\n"
 
 
 def convert_all(dir: str, out_dir: str):
