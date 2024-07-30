@@ -41,7 +41,36 @@ class NmhGcl(KaitaiStruct):
             )
         self.num_areas = self._io.read_u2be()
         self.num_materials = self._io.read_u2be()
-        self.unk_1 = self._io.read_bytes(48)
+        self.unk_1 = self._io.read_u4be()
+        self.unk_2 = self._io.read_u4be()
+        self.unk_3 = self._io.read_u4be()
+        self._unnamed8 = self._io.read_bytes(4)
+        if not self._unnamed8 == b"\x00\x00\x00\x00":
+            raise kaitaistruct.ValidationNotEqualError(
+                b"\x00\x00\x00\x00", self._unnamed8, self._io, "/seq/8"
+            )
+        self._unnamed9 = self._io.read_bytes(16)
+        if (
+            not self._unnamed9
+            == b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        ):
+            raise kaitaistruct.ValidationNotEqualError(
+                b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+                self._unnamed9,
+                self._io,
+                "/seq/9",
+            )
+        self._unnamed10 = self._io.read_bytes(16)
+        if (
+            not self._unnamed10
+            == b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        ):
+            raise kaitaistruct.ValidationNotEqualError(
+                b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+                self._unnamed10,
+                self._io,
+                "/seq/10",
+            )
         self.materials = []
         for i in range(self.num_materials):
             self.materials.append(NmhGcl.Material(self._io, self, self._root))

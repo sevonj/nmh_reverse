@@ -17,12 +17,24 @@ seq:
     type: u2
   - id: num_materials
     type: u2
+
   - id: unk_1
-    size: 48
+    type: u4
+  - id: unk_2
+    type: u4
+  - id: unk_3
+    type: u4
+
+  # 36B Null
+  - contents: [0, 0, 0, 0]
+  - contents: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  - contents: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
   - id: materials
     type: material
     repeat: expr
     repeat-expr: num_materials
+
   - id: areas
     type: area
     repeat: expr
