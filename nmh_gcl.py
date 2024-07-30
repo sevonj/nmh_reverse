@@ -94,7 +94,25 @@ class NmhGcl(KaitaiStruct):
                 KaitaiStream.bytes_terminate(self._io.read_bytes(8), 0, False)
             ).decode("utf-8")
             self.unk0 = self._io.read_f4be()
-            self._unnamed2 = self._io.read_bytes(20)
+            self._unnamed2 = self._io.read_bytes(4)
+            if not self._unnamed2 == b"\x00\x00\x00\x00":
+                raise kaitaistruct.ValidationNotEqualError(
+                    b"\x00\x00\x00\x00",
+                    self._unnamed2,
+                    self._io,
+                    "/types/material/seq/2",
+                )
+            self._unnamed3 = self._io.read_bytes(16)
+            if (
+                not self._unnamed3
+                == b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+            ):
+                raise kaitaistruct.ValidationNotEqualError(
+                    b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+                    self._unnamed3,
+                    self._io,
+                    "/types/material/seq/3",
+                )
 
     class Area(KaitaiStruct):
         def __init__(self, _io, _parent=None, _root=None):

@@ -58,8 +58,8 @@ types:
         size: 8
       - id: unk0
         type: f4
-      - size: 20
-
+      - contents: [0, 0, 0, 0]
+      - contents: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   area:
     seq:
       - id: name
