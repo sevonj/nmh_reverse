@@ -190,7 +190,14 @@ class NmhGcl(KaitaiStruct):
 
                 def _read(self):
                     self.unk_1 = self._io.read_u4be()
-                    self.unk_2 = self._io.read_u4be()
+                    self._unnamed1 = self._io.read_bytes(4)
+                    if not self._unnamed1 == b"\x00\x00\x00\x00":
+                        raise kaitaistruct.ValidationNotEqualError(
+                            b"\x00\x00\x00\x00",
+                            self._unnamed1,
+                            self._io,
+                            "/types/area/types/area_data/types/col_tri/seq/1",
+                        )
                     self.unk_3 = self._io.read_u4be()
                     self.v0 = NmhGcl.FlVector(self._io, self, self._root)
                     self.v1 = NmhGcl.FlVector(self._io, self, self._root)

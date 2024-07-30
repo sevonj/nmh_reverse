@@ -146,8 +146,7 @@ types:
             seq:
               - id: unk_1
                 type: u4
-              - id: unk_2
-                type: u4
+              - contents: [0, 0, 0, 0]
               - id: unk_3
                 type: u4
               - id: v0
