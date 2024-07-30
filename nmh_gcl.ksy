@@ -150,6 +150,7 @@ types:
                 type: u4
               - contents: [0, 0, 0, 0]
               - id: unk_3
+                doc: "probably flags"
                 type: u4
               - id: v0
                 type: fl_vector
