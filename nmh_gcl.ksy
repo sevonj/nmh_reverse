@@ -41,6 +41,7 @@ types:
         type: u4
     seq:
       - size: (size - _io.pos) % size
+
   fl_vector:
     seq:
       - id: x
@@ -49,6 +50,7 @@ types:
         type: f4
       - id: z
         type: f4
+
   material:
     doc: |
       These are probably materials:
@@ -61,12 +63,14 @@ types:
       - id: unk0
         type: f4
       - size: 20
+
   area_header:
     seq:
       - id: name
         type: strz
         size: 8
       - size: 72
+
   area:
     seq:
       - id: unk4
@@ -89,6 +93,7 @@ types:
         type: area_unknown2
         repeat: expr
         repeat-expr: num_unknown2s
+
   area_unknown1:
     seq:
       - id: unk_0
@@ -107,6 +112,7 @@ types:
         type: f4
       - id: unkf_3
         type: f4
+
   area_unknown2:
     seq:
       - id: unk_1
