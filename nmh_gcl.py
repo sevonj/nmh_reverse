@@ -189,7 +189,7 @@ class NmhGcl(KaitaiStruct):
                     self._read()
 
                 def _read(self):
-                    self.unk_1 = self._io.read_u4be()
+                    self.off_next = self._io.read_u4be()
                     self._unnamed1 = self._io.read_bytes(4)
                     if not self._unnamed1 == b"\x00\x00\x00\x00":
                         raise kaitaistruct.ValidationNotEqualError(

@@ -144,7 +144,9 @@ types:
 
           col_tri:
             seq:
-              - id: unk_1
+              - id: off_next
+                doc: |
+                  Is this some kind of linked list or what?
                 type: u4
               - contents: [0, 0, 0, 0]
               - id: unk_3
