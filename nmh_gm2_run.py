@@ -1,3 +1,4 @@
+from collections import namedtuple
 import os
 from pathlib import Path
 import struct
@@ -9,15 +10,52 @@ TOOL_NAME = "Jyl's NMH GM2 exporter"
 DIR = "filesystem/DATA/files/STG_HI"
 OUT_DIR = "out/STG_HI"
 
+Vec3 = namedtuple("Vec3", "x y z")
 
-def convert(in_path: str, out_dir: str):
-    print(in_path)
+
+def extract_models(in_path: str, out_dir: str):
+    print(f"\nExtracting objects:")
     gm2: NmhGm2 = NmhGm2.from_file(in_path)
 
     # Meshes
 
+    # Create a dic containing each object, key is its offset.
+    objects = {}
     for i, world_object in enumerate(gm2.world_objects):
-        print(world_object.name)
+        objects[world_object.off] = world_object
+
+    print(f"{"off".ljust(8)}", end="")
+    print(f"{"name".ljust(10)}", end="")
+    print(f"{"v_scale".ljust(8)}", end="")
+    print("surface progress", end="")
+    print(" ")
+    for i, key in enumerate(objects):
+        print(f"{hex(world_object.off).ljust(8)}", end="")
+        print(f"{world_object.name.ljust(10)}", end="")
+        print(f"{hex(world_object.v_scale).ljust(8)}", end="")
+
+        if world_object.v_scale < 0:
+            print("v_scale is negative. Resulting model is probably bad.", end=' ')
+
+
+        world_object = objects[key]
+
+        # Go through every parent and sum their positions
+        origin_x = 0
+        origin_y = 0
+        origin_z = 0
+        scale_x = 1
+        scale_y = 1
+        scale_z = 1
+        object = world_object
+        while object != None:
+            origin_x += object.origin.x
+            origin_y += object.origin.y
+            origin_z += object.origin.z
+            scale_x *= object.scale.x
+            scale_y *= object.scale.y
+            scale_z *= object.scale.z
+            object = objects.get(object.off_parent)
 
         out_path = os.path.join(
             out_dir, Path(in_path).stem + f"_{world_object.name}_{i}.obj"
@@ -29,59 +67,78 @@ def convert(in_path: str, out_dir: str):
 
             if world_object.surfaces == None:
                 f.write(f"# Skipped empty object:\n#o {world_object.name}_{i}\n")
+                print("No geometry.")
                 continue
-
-            f.write(f"# data_c:  {world_object.data_c.hex()}\n")
 
             last_index = 0
             for ii, surf in enumerate(world_object.surfaces):
-                f.write(f"o {world_object.name}_{i}_{ii}\n")
-                for buffer in surf.buf_b:
-                    x = (
-                        struct.unpack(">e", buffer[0:2])[0]
-                        * 0.01
-                        # + world_object.origin.x
-                    )
-                    y = (
-                        struct.unpack(">e", buffer[2:4])[0]
-                        * 0.01
-                        # + world_object.origin.y
-                    )
-                    z = (
-                        struct.unpack(">e", buffer[4:6])[0]
-                        * 0.01
-                        # + world_object.origin.z
-                    )
-                    f.write(f"v {x} {y} {z}\n")
+                # Do vert buffer once
+                if ii == 0:
+                    vertices = []
+                    for v in surf.v_buf:
+                        vertices.append(Vec3(v.x, v.y, v.z))
+                    
+                    for v in vertices:
+                        x = (v.x / pow(2, world_object.v_scale) * scale_x + origin_x) * 0.1,
+                        y = (v.y / pow(2, world_object.v_scale) * scale_y + origin_y) * 0.1,
+                        z = (v.z / pow(2, world_object.v_scale) * scale_z + origin_z) * 0.1,
+                        f.write(f"v {x[0]} {y[0]} {z[0]}\n")
 
-                # new_indices = 0
-                #
-                # for face in surf.v_buf.vs:
-                #
-                #    if face.unk_0 != 0x99:
-                #        continue
-                #
-                #
-                #    f.write(f"f")
-                #    for buffer in face.unk_1:
-                #        f.write(f" {struct.unpack(">H", buffer[0:2])[0] + last_index}")
-                #        new_indices += 1
-                #    f.write("\n")
-                #
-                # last_index += new_indices
+                # Index buffer
+                f.write(f"o {Path(in_path).stem}_{i}_{world_object.name}_{ii}\n")
+                print(f"{ii}..", end="")
 
-    # for ii in range(last_index, last_index + area.num_unknown2s):
-    #    f.write(f"f {ii * 3 + 1} {ii * 3 + 2} {ii * 3 + 3}\n")
+                faces = get_faces(surf)
+                if faces == []:
+                    continue
+                for face in faces:
+                    f.write("f")
+                    for idx in face:
+                        f.write(f" {idx + 1}")
+                    f.write("\n")
+                    
+            print("Done")
 
-    # last_index += area.num_unknown2s
 
-    return
-    # Textures
+def get_faces(surf) -> list:
+    # Indices
+    i_buf = surf.faces.data
+    faces = []
+
+    head = 0
+    i_remaining = surf.faces.num_v_smthn_total
+    while i_remaining > 0:
+        unk_0 = struct.unpack('>H', i_buf[head:head+2])[0]
+        head += 2
+
+        if unk_0 != 0x99:
+            print(f"ERR: unk_0 == {unk_0}")
+            return []
+        
+        num_idx = struct.unpack('>H', i_buf[head:head+2])[0]
+        head += 2
+
+        indices = []
+        for _ in range(num_idx):
+            indices.append(struct.unpack('>H', i_buf[head:head+2])[0])
+            head += 2
+            # Remaining bytes
+            head += 9
+        faces.append(indices)
+        i_remaining -= num_idx
+
+    return faces
+
+
+#def compress_indices():
+
+def extract_textures(in_path: str, out_dir: str):
+    gm2: NmhGm2 = NmhGm2.from_file(in_path)
+    print(f"\nExtracting {gm2.num_textures} textures...")
     for i, texture in enumerate(gm2.textures):
-
-        out_path = os.path.join(
-            out_dir, f"{Path(in_path).stem}_{texture.name}_{i}.GCT0"
-        )
+        filename = f"{Path(in_path).stem}_{texture.name}_{i}.GCT0"
+        print(f"{i}/{gm2.num_textures-1} {filename}")
+        out_path = os.path.join(out_dir, filename)
         with open(out_path, "wb") as f:
             f.write(texture.data)
 
@@ -99,7 +156,11 @@ def convert_all(dir: str, out_dir: str):
     for file in os.listdir(dir):
         if file.endswith(".GM2"):
             path = os.path.join(dir, file)
-            convert(path, out_dir)
+            print(f"\nFile: {path}")
+
+            extract_textures(path, out_dir)
+
+            extract_models(path, out_dir)
 
 
 if __name__ == "__main__":

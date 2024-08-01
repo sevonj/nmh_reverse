@@ -115,13 +115,16 @@ class NmhGm2(KaitaiStruct):
 
         self.world_objects = []
         for i in range(self.num_objects):
-            self.world_objects.append(NmhGm2.WorldObject(self._io, self, self._root))
+            self.world_objects.append(
+                NmhGm2.WorldObject(self._io.pos(), self._io, self, self._root)
+            )
 
     class WorldObject(KaitaiStruct):
-        def __init__(self, _io, _parent=None, _root=None):
+        def __init__(self, off, _io, _parent=None, _root=None):
             self._io = _io
             self._parent = _parent
             self._root = _root if _root else self
+            self.off = off
             self._read()
 
         def _read(self):
@@ -129,12 +132,12 @@ class NmhGm2(KaitaiStruct):
                 KaitaiStream.bytes_terminate(self._io.read_bytes(8), 0, False)
             ).decode("SHIFT-JIS")
             self.unk_0 = self._io.read_u4le()
-            self.off_i_buf = self._io.read_u4le()
-            self.unk_2 = self._io.read_u4le()
-            self.unk_3 = self._io.read_u4le()
-            self.unk_4 = self._io.read_u4le()
-            self.unk_5 = self._io.read_u4le()
-            self.offset_surf_list = self._io.read_u4le()
+            self.off_v_buf = self._io.read_u4le()
+            self.off_parent = self._io.read_u4le()
+            self.off_obj_a = self._io.read_u4le()
+            self.off_obj_b = self._io.read_u4le()
+            self.off_obj_c = self._io.read_u4le()
+            self.off_surf_list = self._io.read_u4le()
             self._unnamed8 = self._io.read_bytes(4)
             if not self._unnamed8 == b"\x00\x00\x00\x00":
                 raise kaitaistruct.ValidationNotEqualError(
@@ -151,42 +154,35 @@ class NmhGm2(KaitaiStruct):
                     self._io,
                     "/types/world_object/seq/9",
                 )
-            self.unk_7 = self._io.read_u4le()
+            self.v_scale = self._io.read_s4le()
             self.origin = NmhGm2.FlVector(self._io, self, self._root)
             self.unkf_a = self._io.read_f4le()
             self.unk_b = self._io.read_u4le()
-            self.unkf_c = self._io.read_f4le()
-            self.unkf_d = self._io.read_f4le()
-            self.unkf_e = self._io.read_f4le()
-            self.unkf_f = self._io.read_f4le()
-            self.unkf_10 = self._io.read_f4le()
+            self.rot_y = self._io.read_f4le()
+            self.rot_z = self._io.read_f4le()
             self.unkf_11 = self._io.read_f4le()
-            self.offset_c = self._io.read_u4le()
-            self.unkf_13 = self._io.read_f4le()
-            self.unkf_14 = self._io.read_f4le()
-            self.unkf_15 = self._io.read_f4le()
+            self.scale = NmhGm2.FlVector(self._io, self, self._root)
+            self.off_data_c = self._io.read_u4le()
+            self.cullbox_origin = NmhGm2.FlVector(self._io, self, self._root)
             self.unkf_16 = self._io.read_f4le()
-            self.unkf_17 = self._io.read_f4le()
-            self.unkf_18 = self._io.read_f4le()
-            self.unkf_19 = self._io.read_f4le()
+            self.cullbox_size = NmhGm2.FlVector(self._io, self, self._root)
             self.unkf_1a = self._io.read_f4le()
 
         class Surface(KaitaiStruct):
             """Headers are in a linked list."""
 
-            def __init__(self, off_buf_b, data_c, _io, _parent=None, _root=None):
+            def __init__(self, off_v_buf, _io, _parent=None, _root=None):
                 self._io = _io
                 self._parent = _parent
                 self._root = _root if _root else self
-                self.off_buf_b = off_buf_b
-                self.data_c = data_c
+                self.off_v_buf = off_v_buf
                 self._read()
 
             def _read(self):
-                self.prev_offset = self._io.read_u4le()
-                self.next_offset = self._io.read_u4le()
-                self.data_offset = self._io.read_u4le()
-                self.unk_3 = self._io.read_u4le()
+                self.off_prev = self._io.read_u4le()
+                self.off_next = self._io.read_u4le()
+                self.off_data = self._io.read_u4le()
+                self.off_material = self._io.read_u4le()
                 self.unk_4 = self._io.read_u2le()
                 self.num_i = self._io.read_u2le()
                 self._unnamed6 = self._io.read_bytes(4)
@@ -202,12 +198,23 @@ class NmhGm2(KaitaiStruct):
                 self.unk_8 = self._io.read_u2le()
                 self.unk_9 = self._io.read_u2le()
 
-            class BufA(KaitaiStruct):
-                def __init__(self, off_buf_b, _io, _parent=None, _root=None):
+            class V(KaitaiStruct):
+                def __init__(self, _io, _parent=None, _root=None):
                     self._io = _io
                     self._parent = _parent
                     self._root = _root if _root else self
-                    self.off_buf_b = off_buf_b
+                    self._read()
+
+                def _read(self):
+                    self.x = self._io.read_s2be()
+                    self.y = self._io.read_s2be()
+                    self.z = self._io.read_s2be()
+
+            class Faces(KaitaiStruct):
+                def __init__(self, _io, _parent=None, _root=None):
+                    self._io = _io
+                    self._parent = _parent
+                    self._root = _root if _root else self
                     self._read()
 
                 def _read(self):
@@ -220,7 +227,7 @@ class NmhGm2(KaitaiStruct):
                             b"\x00\x00\x00\x00\x00\x00\x00\x00",
                             self._unnamed3,
                             self._io,
-                            "/types/world_object/types/surface/types/buf_a/seq/3",
+                            "/types/world_object/types/surface/types/faces/seq/3",
                         )
                     self._unnamed4 = self._io.read_bytes(16)
                     if (
@@ -231,25 +238,15 @@ class NmhGm2(KaitaiStruct):
                             b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
                             self._unnamed4,
                             self._io,
-                            "/types/world_object/types/surface/types/buf_a/seq/4",
+                            "/types/world_object/types/surface/types/faces/seq/4",
                         )
-                    self.vs = []
-                    i = 0
-                    while True:
-                        _ = NmhGm2.WorldObject.Surface.Face(
-                            self.off_buf_b, self._io, self, self._root
-                        )
-                        self.vs.append(_)
-                        if _.unk_0 == 0:
-                            break
-                        i += 1
+                    self.data = self._io.read_bytes(self.data_size)
 
             class Face(KaitaiStruct):
-                def __init__(self, off_buf_b, _io, _parent=None, _root=None):
+                def __init__(self, _io, _parent=None, _root=None):
                     self._io = _io
                     self._parent = _parent
                     self._root = _root if _root else self
-                    self.off_buf_b = off_buf_b
                     self._read()
 
                 def _read(self):
@@ -261,73 +258,60 @@ class NmhGm2(KaitaiStruct):
                         self.unk_1 = []
                         for i in range(self.num_smthn):
                             self.unk_1.append(
-                                NmhGm2.WorldObject.Surface.Face.V(
-                                    self.off_buf_b, self._io, self, self._root
+                                NmhGm2.WorldObject.Surface.Face.I(
+                                    self._io, self, self._root
                                 )
                             )
 
-                class V(KaitaiStruct):
-                    def __init__(self, off_buf_b, _io, _parent=None, _root=None):
+                class I(KaitaiStruct):
+                    def __init__(self, _io, _parent=None, _root=None):
                         self._io = _io
                         self._parent = _parent
                         self._root = _root if _root else self
-                        self.off_buf_b = off_buf_b
                         self._read()
 
                     def _read(self):
                         self.idx = self._io.read_u2be()
                         self.unk = self._io.read_bytes(9)
 
-                    @property
-                    def data_b(self):
-                        if hasattr(self, "_m_data_b"):
-                            return self._m_data_b
-
-                        io = self._root._io
-                        _pos = io.pos()
-                        io.seek((self.off_buf_b + (self.idx * 6)))
-                        self._m_data_b = io.read_bytes(6)
-                        io.seek(_pos)
-                        return getattr(self, "_m_data_b", None)
-
             @property
-            def buf_a(self):
-                if hasattr(self, "_m_buf_a"):
-                    return self._m_buf_a
+            def faces(self):
+                if hasattr(self, "_m_faces"):
+                    return self._m_faces
 
                 io = self._root._io
                 _pos = io.pos()
-                io.seek(self.data_offset)
-                self._m_buf_a = NmhGm2.WorldObject.Surface.BufA(
-                    self.off_buf_b, io, self, self._root
-                )
+                io.seek(self.off_data)
+                self._m_faces = NmhGm2.WorldObject.Surface.Faces(io, self, self._root)
                 io.seek(_pos)
-                return getattr(self, "_m_buf_a", None)
+                return getattr(self, "_m_faces", None)
 
             @property
-            def buf_b(self):
-                if hasattr(self, "_m_buf_b"):
-                    return self._m_buf_b
+            def v_buf(self):
+                if hasattr(self, "_m_v_buf"):
+                    return self._m_v_buf
 
                 io = self._root._io
                 _pos = io.pos()
-                io.seek(self.off_buf_b)
-                self._m_buf_b = []
+                io.seek(self.off_v_buf)
+                self._m_v_buf = []
                 for i in range(self.num_i):
-                    self._m_buf_b.append(io.read_bytes(6))
+                    self._m_v_buf.append(
+                        NmhGm2.WorldObject.Surface.V(io, self, self._root)
+                    )
 
                 io.seek(_pos)
-                return getattr(self, "_m_buf_b", None)
+                return getattr(self, "_m_v_buf", None)
 
         @property
         def data_c(self):
             if hasattr(self, "_m_data_c"):
                 return self._m_data_c
 
-            if self.offset_c != 1065353216:
+            if (self.off_data_c != 1065353216) and (self.off_data_c != 0):
                 io = self._root._io
                 _pos = io.pos()
-                io.seek(self.offset_c)
+                io.seek(self.off_data_c)
                 self._m_data_c = io.read_bytes(6)
                 io.seek(_pos)
 
@@ -338,18 +322,16 @@ class NmhGm2(KaitaiStruct):
             if hasattr(self, "_m_surfaces"):
                 return self._m_surfaces
 
-            if self.offset_surf_list != 0:
+            if self.off_surf_list != 0:
                 io = self._root._io
                 _pos = io.pos()
-                io.seek(self.offset_surf_list)
+                io.seek(self.off_surf_list)
                 self._m_surfaces = []
                 i = 0
                 while True:
-                    _ = NmhGm2.WorldObject.Surface(
-                        self.off_i_buf, self.data_c, io, self, self._root
-                    )
+                    _ = NmhGm2.WorldObject.Surface(self.off_v_buf, io, self, self._root)
                     self._m_surfaces.append(_)
-                    if _.next_offset == 0:
+                    if _.off_next == 0:
                         break
                     i += 1
                 io.seek(_pos)
@@ -382,10 +364,10 @@ class NmhGm2(KaitaiStruct):
             self.name = (
                 KaitaiStream.bytes_terminate(self._io.read_bytes(8), 0, False)
             ).decode("SHIFT-JIS")
-            self.unk_0 = self._io.read_u4le()
-            self.unk_2 = self._io.read_u4le()
+            self.off_prev = self._io.read_u4le()
+            self.off_next = self._io.read_u4le()
             self.unk_3 = self._io.read_u4le()
-            self.offset = self._io.read_u4le()
+            self.off_data = self._io.read_u4le()
             self._unnamed5 = self._io.read_bytes(4)
             if not self._unnamed5 == b"\x00\x00\x00\x00":
                 raise kaitaistruct.ValidationNotEqualError(
@@ -427,7 +409,7 @@ class NmhGm2(KaitaiStruct):
                         self._io,
                         "/types/material/types/material_data/seq/1",
                     )
-                self.unk_2 = self._io.read_u4le()
+                self.off_texture = self._io.read_u4le()
                 self.unk_3 = self._io.read_u4le()
                 self.unkf_4 = self._io.read_f4le()
                 self.unkf_5 = self._io.read_f4le()
@@ -445,7 +427,7 @@ class NmhGm2(KaitaiStruct):
 
             io = self._root._io
             _pos = io.pos()
-            io.seek(self.offset)
+            io.seek(self.off_data)
             self._m_data = NmhGm2.Material.MaterialData(io, self, self._root)
             io.seek(_pos)
             return getattr(self, "_m_data", None)
@@ -473,9 +455,9 @@ class NmhGm2(KaitaiStruct):
             self.name = (
                 KaitaiStream.bytes_terminate(self._io.read_bytes(8), 0, False)
             ).decode("SHIFT-JIS")
-            self.unk_0 = self._io.read_u4le()
-            self.unk_1 = self._io.read_u4le()
-            self.offset = self._io.read_u4le()
+            self.off_prev = self._io.read_u4le()
+            self.off_next = self._io.read_u4le()
+            self.off_data = self._io.read_u4le()
             self._unnamed4 = self._io.read_bytes(4)
             if not self._unnamed4 == b"\x00\x00\x00\x00":
                 raise kaitaistruct.ValidationNotEqualError(
@@ -488,19 +470,6 @@ class NmhGm2(KaitaiStruct):
             self.unk_5 = self._io.read_u4le()
 
         @property
-        def data_magic(self):
-            """Just to be extra sure."""
-            if hasattr(self, "_m_data_magic"):
-                return self._m_data_magic
-
-            io = self._root._io
-            _pos = io.pos()
-            io.seek(self.offset)
-            self._m_data_magic = io.read_bytes(4)
-            io.seek(_pos)
-            return getattr(self, "_m_data_magic", None)
-
-        @property
         def data(self):
             """GHM in-house texture format."""
             if hasattr(self, "_m_data"):
@@ -508,7 +477,7 @@ class NmhGm2(KaitaiStruct):
 
             io = self._root._io
             _pos = io.pos()
-            io.seek(self.offset)
+            io.seek(self.off_data)
             self._m_data = io.read_bytes(self.size)
             io.seek(_pos)
             return getattr(self, "_m_data", None)
