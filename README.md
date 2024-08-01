@@ -10,4 +10,4 @@ Requirements:
 
 Known data:
 - `.GCL` files: World collisions
-- `.GM2` files (partial): World textures, materials, geometry.
+- `.GM2` files: World textures, materials, geometry.
