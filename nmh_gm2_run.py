@@ -88,22 +88,20 @@ def extract_models(in_path: str, out_dir: str):
                 f.write(f"o {Path(in_path).stem}_{i}_{world_object.name}_{ii}\n")
                 print(f"{ii}..", end="")
 
-                faces = get_faces(surf)
-                if faces == []:
+                strips = get_strips(surf)
+                if strips == []:
                     continue
-                for face in faces:
-                    f.write("f")
-                    for idx in face:
-                        f.write(f" {idx + 1}")
-                    f.write("\n")
-                    
+                for indices in strips:
+                    for i in range(len(indices)-2):
+                        f.write(f"f {indices[i]+1} {indices[i+1]+1} {indices[i+2]+1}\n")
+
             print("Done")
 
 
-def get_faces(surf) -> list:
+def get_strips(surf) -> list:
     # Indices
     i_buf = surf.faces.data
-    faces = []
+    strips = []
 
     head = 0
     i_remaining = surf.faces.num_v_smthn_total
@@ -124,10 +122,21 @@ def get_faces(surf) -> list:
             head += 2
             # Remaining bytes
             head += 9
-        faces.append(indices)
+        
+        new_indices = []
+        for i in range(num_idx-2):
+            if i % 2 == 0:
+                new_indices.append(indices[i])
+                new_indices.append(indices[i+1])
+                new_indices.append(indices[i+2])
+            else:
+                new_indices.append(indices[i])
+                new_indices.append(indices[i+2])
+                new_indices.append(indices[i+1])
+        strips.append(new_indices)
         i_remaining -= num_idx
 
-    return faces
+    return strips
 
 
 #def compress_indices():
