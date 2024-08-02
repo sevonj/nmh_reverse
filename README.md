@@ -1,5 +1,8 @@
 # No More Heroes file format reversing
 
+> [!NOTE]  
+> Further documentation at https://sevonj.github.io/nmh_reverse/tools/nmh_reverse_scripts/
+
 ![image](https://github.com/user-attachments/assets/625044d5-f970-4bf6-aafe-20b4fb902551)
 
 Contains [Kaitai Struct](https://kaitai.io/) definitions.
