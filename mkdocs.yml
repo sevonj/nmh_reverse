@@ -2,6 +2,9 @@ site_name: GHM File Docs
 site_url: https://sevonj.github.io/nmh_reverse/
 theme:
   name: material
+  icon:
+    logo: material/star
+  favicon: assets/star.png
 
   palette:
     - scheme: default
