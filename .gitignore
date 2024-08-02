@@ -1,5 +1,9 @@
 __pycache__
 
+# game files
 filesystem/
 filesystem_edited/
 out/
+
+# mkdocs
+site/

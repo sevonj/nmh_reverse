@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 kaitaistruct = "^0.10"
+mkdocs-material = "^9.5.31"
 
 
 [build-system]
