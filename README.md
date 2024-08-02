@@ -1,6 +1,6 @@
 # No More Heroes file format reversing
 
-![image](https://github.com/user-attachments/assets/8f57d4c7-f891-4d9d-889d-fe0d712a71b9)
+![image](https://github.com/user-attachments/assets/625044d5-f970-4bf6-aafe-20b4fb902551)
 
 Contains [Kaitai Struct](https://kaitai.io/) definitions.
 
