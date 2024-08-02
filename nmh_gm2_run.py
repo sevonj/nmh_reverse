@@ -12,6 +12,7 @@ OUT_DIR = "out/STG_HI"
 
 Vec3 = namedtuple("Vec3", "x y z")
 
+Gm2Idx = namedtuple("Gm2Idx", "i u v")
 
 def extract_models(in_path: str, out_dir: str):
     print(f"\nExtracting objects:")
@@ -70,9 +71,13 @@ def extract_models(in_path: str, out_dir: str):
                 print("No geometry.")
                 continue
 
-            last_index = 0
+            last_index = 1
             for ii, surf in enumerate(world_object.surfaces):
-                # Do vert buffer once
+                f.write(f"o {Path(in_path).stem}_{i}_{world_object.name}_{ii}\n")
+                print(f"{ii}..", end="")
+                strips = get_strips(surf)
+
+                # Write Vs (once)
                 if ii == 0:
                     vertices = []
                     for v in surf.v_buf:
@@ -84,16 +89,29 @@ def extract_models(in_path: str, out_dir: str):
                         z = (v.z / pow(2, world_object.v_scale) * scale_z + origin_z) * 0.1,
                         f.write(f"v {x[0]} {y[0]} {z[0]}\n")
 
-                # Index buffer
-                f.write(f"o {Path(in_path).stem}_{i}_{world_object.name}_{ii}\n")
-                print(f"{ii}..", end="")
-
-                strips = get_strips(surf)
+                # Exit if something went wrong.
                 if strips == []:
                     continue
+
+                # Write UVs
+                for indices in strips:
+                    for i in range(len(indices)):
+                        u = indices[i].u / pow(2, 4)
+                        v = indices[i].v / pow(2, 4)
+                        f.write(f"vt {u} {v}\n")
+
+                # Write Faces
+                
                 for indices in strips:
                     for i in range(len(indices)-2):
-                        f.write(f"f {indices[i]+1} {indices[i+1]+1} {indices[i+2]+1}\n")
+                        va = indices[i].i + 1
+                        vb = indices[i+1].i + 1
+                        vc = indices[i+2].i + 1
+                        vta = last_index
+                        vtb = last_index + 1
+                        vtc = last_index + 2
+                        f.write(f"f {va}/{vta} {vb}/{vtb} {vc}/{vtc}\n")
+                        last_index += 1
 
             print("Done")
 
@@ -118,10 +136,24 @@ def get_strips(surf) -> list:
 
         indices = []
         for _ in range(num_idx):
-            indices.append(struct.unpack('>H', i_buf[head:head+2])[0])
+            idx = struct.unpack('>H', i_buf[head:head+2])[0]
             head += 2
+
+            # Probably normals
+            unk_1 = struct.unpack('>h', i_buf[head:head+2])[0]
+            head += 2
+            unk_2 = struct.unpack('>h', i_buf[head:head+2])[0]
+            head += 2
+            
+            u = struct.unpack('>b', i_buf[head:head+1])[0]
+            head += 1
+            v = struct.unpack('>b', i_buf[head:head+1])[0]
+            head += 1
+
+            indices.append(Gm2Idx(idx, u, v))
+
             # Remaining bytes
-            head += 9
+            head += 3
         
         new_indices = []
         for i in range(num_idx-2):
