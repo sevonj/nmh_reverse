@@ -6,6 +6,8 @@ import sys
 from lib.kaitai_defs.gmf2 import NmhGm2
 from glob import glob
 
+import unpack_gct0
+
 TOOL_NAME = "Jyl's GMF2 exporter"
 
 DIR = "filesystem/DATA/files/STG_HI"
@@ -184,6 +186,8 @@ def extract_textures(in_path: str, out_dir: str):
         out_path = os.path.join(out_dir, filename)
         with open(out_path, "wb") as f:
             f.write(texture.data)
+        
+        unpack_gct0.unpack(out_path, out_dir)
 
 
 def get_nodetree(node_id: str, nodes: list):
@@ -208,13 +212,10 @@ def get_nodetree_str(children: dict, nodes: dict, depth: int = 1):
     return ret_str
 
 
-def log_tree(in_path: str, out_dir: str):
+def log_tree(in_path: str, log_path: str):
     gm2: NmhGm2 = NmhGm2.from_file(in_path)
-
-    log_file = os.path.join(out_dir, "_info.txt")
-
-    with open(log_file, "w") as f:
-        f.write(f"GMF2 info:\n{Path(in_path).stem}\nNode Tree:\n")
+    with open(log_path, "w") as f:
+        f.write(f"GMF2 info:\n{Path(in_path).stem}\n\n--- Scene Tree ---\n")
 
         nodes = {}
         for node in gm2.world_objects:
@@ -228,13 +229,42 @@ def log_tree(in_path: str, out_dir: str):
         f.write(tree_str)
 
 
+def log_textures(in_path: str, log_path: str):    
+    with open(log_path, "a") as f:
+        f.write("\n--- Textures ---\n")
+
+        f.write(f"{"Filename".ljust(20)}")
+        f.write(f"{"Encoding".ljust(16)}")
+        f.write(f"{"Size".ljust(8)}")
+        f.write("\n")
+        
+        files = os.listdir(in_path)
+        files.sort()    
+        for file in files:
+            if not file.endswith(".GCT0"):
+                continue
+
+            
+            path = os.path.join(in_path, file)
+            print("TEXTURE: ", path)
+
+            gct0 = unpack_gct0.parse_file(path)
+
+            f.write(f"{file.ljust(20)}")
+            enc_str = f"{hex(gct0.encoding)} - {unpack_gct0.Encoding(gct0.encoding).name}"
+            f.write(f"{enc_str.ljust(16)}")
+            f.write(f"{str(gct0.w)}x{str(gct0.h)}".ljust(8))
+            f.write("\n")
+
         
 
 def unpack(path: str, out_dir: str):
     os.makedirs(out_dir, exist_ok=True)
+    log_path = os.path.join(out_dir, "_info.txt")
 
-    log_tree(path, out_dir)
+    log_tree(path, log_path)
     extract_textures(path, out_dir)
+    log_textures(out_dir, log_path)
     extract_models(path, out_dir)
 
 

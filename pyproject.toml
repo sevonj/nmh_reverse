@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.12"
 kaitaistruct = "^0.10"
 mkdocs-material = "^9.5.31"
+pillow = "^10.4.0"
 
 
 [build-system]
