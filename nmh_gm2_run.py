@@ -2,7 +2,7 @@ from collections import namedtuple
 import os
 from pathlib import Path
 import struct
-from nmh_gm2 import NmhGm2
+from lib.kaitai_defs.nmh_gm2 import NmhGm2
 from glob import glob
 
 TOOL_NAME = "Jyl's NMH GM2 exporter"

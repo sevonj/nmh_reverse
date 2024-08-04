@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from nmh_gcl import NmhGcl
+from lib.kaitai_defs.nmh_gcl import NmhGcl
 from glob import glob
 
 TOOL_NAME = "Jyl's NMH GCL exporter"

@@ -1,10 +1,10 @@
 import os
 import random
-from nmh_gm2 import NmhGm2
+from lib.kaitai_defs.nmh_gm2 import NmhGm2
 from glob import glob
 import struct
 import sys
-from reset_files import reset_files
+from lib.reset_files import reset_files
 
 TOOL_NAME = "Jyl's NMH GM2 exporter"
 
