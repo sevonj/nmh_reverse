@@ -19,7 +19,7 @@ A collection of scripts for tampering with NMH maps. Also contains Kaitai Struct
     - From Wii: Unpack the entire disc image to `./filesystem` with Dolphin emu.
     - From PC (untested): Copy the root folder to `./filesystem/DATA/files`.
 1. Python
-    - Use python-poetry for automatic dependencies or read pyproject.toml and install them manually.
+    - Use python-poetry for automatic dependencies or check what's imported in the scripts and install them manually.
 
 
 ## Scripts
