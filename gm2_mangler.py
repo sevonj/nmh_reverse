@@ -1,6 +1,6 @@
 import os
 import random
-from lib.kaitai_defs.nmh_gm2 import NmhGm2
+from lib.kaitai_defs.gmf2 import NmhGm2
 from glob import glob
 import struct
 import sys

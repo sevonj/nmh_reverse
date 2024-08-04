@@ -12,7 +12,7 @@ if getattr(kaitaistruct, "API_VERSION", (0, 9)) < (0, 9):
 
 
 class NmhGcl(KaitaiStruct):
-    """FLGC
+    """FLCG
     No More Heroes World Collisions
     One distance unit appears to be 10m.
     """

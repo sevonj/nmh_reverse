@@ -1,10 +1,10 @@
 meta:
-  id: nmh_gcl
+  id: flcg
   file-extension: GCL
   encoding: utf-8
   endian: be
 doc: |
-  FLGC
+  FLCG
   No More Heroes World Collisions
   One distance unit appears to be 10m.
 

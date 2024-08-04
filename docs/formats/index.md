@@ -2,7 +2,7 @@
 
 | ID   | Ext.     | Type    | Desc.                          | Games | Tools |
 | ---- | -------- | ------- | ------------------------------ | ----- | ----- |
-| FLGC | `.gcl`   | Models  | Coll models.                   | `NMH` |       |
+| FLCG | `.gcl`   | Models  | Coll models.                   | `NMH` |       |
 | GMF2 | `.gm2`   | Models  | Gfx models. World, characters. | `NMH` |       |
 | GCT0 | `.bin`   | Texture | GHM texture format             | `NMH` |       |
 |      | `.rsl`   |         |                                | `NMH` |       |

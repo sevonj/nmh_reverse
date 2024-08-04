@@ -2,10 +2,10 @@ from collections import namedtuple
 import os
 from pathlib import Path
 import struct
-from lib.kaitai_defs.nmh_gm2 import NmhGm2
+from lib.kaitai_defs.gmf2 import NmhGm2
 from glob import glob
 
-TOOL_NAME = "Jyl's NMH GM2 exporter"
+TOOL_NAME = "Jyl's GMF2 exporter"
 
 DIR = "filesystem/DATA/files/STG_HI"
 OUT_DIR = "out/STG_HI"

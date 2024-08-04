@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
-from lib.kaitai_defs.nmh_gcl import NmhGcl
+from lib.kaitai_defs.flcg import NmhGcl
 from glob import glob
 
-TOOL_NAME = "Jyl's NMH GCL exporter"
+TOOL_NAME = "Jyl's FLCG exporter"
 
 DIR = "filesystem/DATA/files/STG_HI"
 OUT_DIR = "out/STG_HI"

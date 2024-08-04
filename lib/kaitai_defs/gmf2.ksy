@@ -1,5 +1,5 @@
 meta:
-  id: nmh_gm2
+  id: gmf2
   file-extension: GM2
   encoding: SHIFT-JIS
   endian: be

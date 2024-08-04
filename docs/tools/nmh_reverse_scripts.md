@@ -8,7 +8,7 @@
     `NMH`
     
     __File formats__
-    `FLGC`
+    `FLCG`
     `GMF2` 
     
 
@@ -23,16 +23,16 @@ A collection of scripts for tampering with NMH maps. Also contains Kaitai Struct
 
 
 ## Scripts
-### nmh_gcl_run.py
+### unpack_flcg.py
 No args.
 
-Extract all open world colliders: `filesystem/DATA/files/STG_HI/*.GCL` (FLGC)
+Extract all open world colliders: `filesystem/DATA/files/STG_HI/*.GCL`
 
 
-### nmh_gm2_run.py
+### unpack_gmf2.py
 No args.
 
-Extract all open world visuals: `filesystem/DATA/files/STG_HI/*.GM2` (GMF2)
+Extract all open world visuals: `filesystem/DATA/files/STG_HI/*.GM2`
 
 ### gm2_mangler.py
 args: filename without full path.
