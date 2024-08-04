@@ -82,6 +82,17 @@ types:
       - id: z
         type: f4le
 
+  fl_vector4:
+    seq:
+      - id: x
+        type: f4le
+      - id: y
+        type: f4le
+      - id: z
+        type: f4le
+      - id: w
+        type: f4le
+
   # --- Textures
 
   texture:
@@ -98,8 +109,9 @@ types:
       - contents: [0, 0, 0, 0]
       - id: size
         type: u4le
-      - id: unk_5
-        type: u4le
+      - id: unk_str
+        type: strz
+        size: 4
 
     instances:
       data:
@@ -143,25 +155,11 @@ types:
           - id: unk_3
             doc: "flags?"
             type: u4le
-
-          - id: unkf_4
-            type: f4le
-          - id: unkf_5
-            type: f4le
-          - id: unkf_6
-            type: f4le
-          - id: unkf_7
-            type: f4le
-
-            # Often RGBA
-          - id: unkf_8
-            type: f4le
-          - id: unkf_9
-            type: f4le
-          - id: unkf_a
-            type: f4le
-          - id: unkf_b
-            type: f4le
+          - id: shaderparams_a
+            type: fl_vector4
+          - id: shaderparams_b
+            doc: "Often RGBA"
+            type: fl_vector4
 
   # --- Objects
 
