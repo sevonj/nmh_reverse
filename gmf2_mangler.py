@@ -6,7 +6,7 @@ import struct
 import sys
 from lib.reset_files import reset_files
 
-TOOL_NAME = "Jyl's NMH GM2 exporter"
+TOOL_NAME = "Jyl's GMF2 Mangler"
 
 DIR = "filesystem/DATA/files/STG_HI"
 OUT_DIR = "filesystem_edited/DATA/files/STG_HI"

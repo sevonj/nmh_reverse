@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import sys
 from lib.kaitai_defs.flcg import NmhGcl
 from glob import glob
 
@@ -9,7 +10,8 @@ DIR = "filesystem/DATA/files/STG_HI"
 OUT_DIR = "out/STG_HI"
 
 
-def convert(in_path: str, out_dir: str):
+def unpack(in_path: str, out_dir: str):
+    os.makedirs(out_dir, exist_ok=True)
     print(in_path)
     gcl: NmhGcl = NmhGcl.from_file(in_path)
 
@@ -49,21 +51,19 @@ def vert_2_obj(v: NmhGcl.FlVector, origin: NmhGcl.FlVector) -> str:
     return f"v {x} {y} {z}\n"
 
 
-def convert_all(dir: str, out_dir: str):
-    # out dir exists
-    os.makedirs(out_dir, exist_ok=True)
-
-    # rm old files
-    files = glob(os.path.join(out_dir, "*"))
-    for f in files:
-        os.remove(f)
-
-    # convert all
-    for file in os.listdir(dir):
-        if file.endswith(".GCL"):
-            path = os.path.join(dir, file)
-            convert(path, out_dir)
-
-
 if __name__ == "__main__":
-    convert_all(DIR, OUT_DIR)
+    match len(sys.argv):
+        case 2:
+            in_path = sys.argv[1]
+            out_path = os.path.join(".", Path(in_path).stem + "_extracted")
+            unpack(in_path, out_path)
+
+        case 3:
+            in_path = sys.argv[1]
+            out_path = sys.argv[2]
+            unpack(in_path, out_path)
+
+        case _:
+            print(
+                "Provide 1 or 2 args:\n    - input file path\n    - output dir path (optional)"
+            )

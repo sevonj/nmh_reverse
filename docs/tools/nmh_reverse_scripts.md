@@ -23,16 +23,14 @@ A collection of scripts for tampering with NMH maps. Also contains Kaitai Struct
 
 
 ## Scripts
+### unpack_all.py
+Unpacks everything that can be unpacked. If you just want the models, use this.
+
 ### unpack_flcg.py
-No args.
-
-Extract all open world colliders: `filesystem/DATA/files/STG_HI/*.GCL`
-
+Extract an FLCG file (.GCL)
 
 ### unpack_gmf2.py
-No args.
-
-Extract all open world visuals: `filesystem/DATA/files/STG_HI/*.GM2`
+Extract a GMF2 file (.GM2)
 
 ### gm2_mangler.py
 args: filename without full path.

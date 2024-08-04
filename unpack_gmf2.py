@@ -2,6 +2,7 @@ from collections import namedtuple
 import os
 from pathlib import Path
 import struct
+import sys
 from lib.kaitai_defs.gmf2 import NmhGm2
 from glob import glob
 
@@ -59,7 +60,7 @@ def extract_models(in_path: str, out_dir: str):
             object = objects.get(object.off_parent)
 
         out_path = os.path.join(
-            out_dir, Path(in_path).stem + f"_{world_object.name}_{i}.obj"
+            out_dir, f"{world_object.name}_{i}.obj"
         )
 
         with open(out_path, "w") as f:
@@ -171,38 +172,84 @@ def get_strips(surf) -> list:
     return strips
 
 
-#def compress_indices():
-
 def extract_textures(in_path: str, out_dir: str):
     gm2: NmhGm2 = NmhGm2.from_file(in_path)
     print(f"\nExtracting {gm2.num_textures} textures...")
+
     for i, texture in enumerate(gm2.textures):
-        filename = f"{Path(in_path).stem}_{texture.name}_{i}.GCT0"
+
+        filename = f"{texture.name}_{i}.GCT0"
         print(f"{i}/{gm2.num_textures-1} {filename}")
+
         out_path = os.path.join(out_dir, filename)
         with open(out_path, "wb") as f:
             f.write(texture.data)
 
 
-def convert_all(dir: str, out_dir: str):
-    # out dir exists
+def get_nodetree(node_id: str, nodes: list):
+    """Recursively get node tree"""
+    children = {}
+    for node in nodes:
+        parent = hex(node.off_parent)
+        if parent == node_id:
+            child = hex(node.off)
+            children[child] = get_nodetree(child, nodes)
+    return children
+
+
+def get_nodetree_str(children: dict, nodes: dict, depth: int = 1):
+    """Recursively generate string from nodetree."""
+    ret_str = ""
+    keys = children.keys()
+    for key in keys:
+        node = nodes[key]
+        ret_str += f"{"    " * depth}{key.ljust(7)} {node.name.ljust(10)} {"" if node.surfaces != None else "no_geometry"}\n"
+        ret_str += get_nodetree_str(children[key], nodes, depth + 1)
+    return ret_str
+
+
+def log_tree(in_path: str, out_dir: str):
+    gm2: NmhGm2 = NmhGm2.from_file(in_path)
+
+    log_file = os.path.join(out_dir, "_info.txt")
+
+    with open(log_file, "w") as f:
+        f.write(f"GMF2 info:\n{Path(in_path).stem}\nNode Tree:\n")
+
+        nodes = {}
+        for node in gm2.world_objects:
+            key = hex(node.off)
+            nodes[key] = node
+
+        tree = get_nodetree(hex(0), gm2.world_objects)
+        tree_str = get_nodetree_str(tree, nodes)
+
+        print(tree_str)
+        f.write(tree_str)
+
+
+        
+
+def unpack(path: str, out_dir: str):
     os.makedirs(out_dir, exist_ok=True)
 
-    # rm old files
-    files = glob(os.path.join(out_dir, "*"))
-    for f in files:
-        os.remove(f)
-
-    # convert all
-    for file in os.listdir(dir):
-        if file.endswith(".GM2"):
-            path = os.path.join(dir, file)
-            print(f"\nFile: {path}")
-
-            extract_textures(path, out_dir)
-
-            extract_models(path, out_dir)
+    log_tree(path, out_dir)
+    extract_textures(path, out_dir)
+    extract_models(path, out_dir)
 
 
 if __name__ == "__main__":
-    convert_all(DIR, OUT_DIR)
+    match len(sys.argv):
+        case 2:
+            in_path = sys.argv[1]
+            out_path = os.path.join(".", Path(in_path).stem + "_extracted")
+            unpack(in_path, out_path)
+
+        case 3:
+            in_path = sys.argv[1]
+            out_path = sys.argv[2]
+            unpack(in_path, out_path)
+    
+        case _:
+            print("Provide 1 or 2 args:\n    - input file path\n    - output dir path (optional)")
+
