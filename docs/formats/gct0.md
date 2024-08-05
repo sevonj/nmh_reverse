@@ -31,10 +31,13 @@ int32 unknown; // Flags?
 
 ```cpp
 /*
-  Source: https://wiki.tockdom.com/wiki/TEX0_(File_Format)
-  This seems to match perfectly with dolphin's texture format overlay.
+  Source:
+  https://wiki.tockdom.com/wiki/Image_Formats
+  These seem to match encodings used here, so it probably came from some
+  nintendo-provided library.
 
-  It is unclear if all encodings are used.
+  It is unclear which all encodings are used in the game or actually supported
+  by the engine.
 */
 enum Encoding {
     I4 = 0x00,
