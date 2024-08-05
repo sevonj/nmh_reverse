@@ -180,7 +180,7 @@ def extract_textures(in_path: str, out_dir: str):
 
     for i, texture in enumerate(gm2.textures):
 
-        filename = f"{texture.name}_{i}.GCT0"
+        filename = f"{texture.name}_{i}.GCT"
         print(f"{i}/{gm2.num_textures-1} {filename}")
 
         out_path = os.path.join(out_dir, filename)
@@ -244,7 +244,7 @@ def log_textures(in_path: str, log_path: str):
         files = os.listdir(in_path)
         files.sort()    
         for file in files:
-            if not file.endswith(".GCT0"):
+            if not file.endswith(".GCT"):
                 continue
 
             
