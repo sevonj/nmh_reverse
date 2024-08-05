@@ -24,24 +24,21 @@ A collection of scripts for tampering with NMH maps. Also contains Kaitai Struct
 
 
 ## Scripts
-### unpack_all.py
-Unpacks everything that can be unpacked. If you just want the models, use this.
+**unpack_all.py**
+:   Unpacks everything that can be unpacked. If you just want the models, use this.
 
-### unpack_gct0.py
-Unusable for anything else than gathering info.
+**unpack_gct0.py**
+:   Unusable for anything else than gathering info.
 
-### unpack_flcg.py
-Extract an FLCG file (.GCL)
+**unpack_flcg.py**
+:   Extract an FLCG file (.GCL)
 
-### unpack_gmf2.py
-Extract a GMF2 file (.GM2)
+**unpack_gmf2.py**
+:   Extract a GMF2 file (.GM2)
 
-### gm2_mangler.py
-args: filename without full path.
+**gm2_mangler.py**
+:   Platform for corrupting specific values and quick testing.
 
-Platform for corrupting specific values and quick testing.
+**.ksy files**
 
-### .ksy files
-Kaitai Struct files. Useful for further reverse-engineering.
-
-Easiest way to get started is to go to [https://ide.kaitai.io](https://ide.kaitai.io) and load your `.ksy` and sample files there. Right click the `.ksy` file to generate a new python parser.
+:   See [Kaitai Struct](/nmh_reverse/tools/kaitaistruct)
