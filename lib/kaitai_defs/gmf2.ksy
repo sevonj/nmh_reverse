@@ -177,11 +177,11 @@ types:
         type: u4le
       - id: off_parent
         type: u4le
-      - id: off_obj_a
+      - id: off_children
         type: u4le
-      - id: off_obj_b
+      - id: off_prev
         type: u4le
-      - id: off_obj_c
+      - id: off_next
         type: u4le
       - id: off_surf_list
         type: u4le

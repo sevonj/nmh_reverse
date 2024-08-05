@@ -11,7 +11,7 @@ if getattr(kaitaistruct, "API_VERSION", (0, 9)) < (0, 9):
     )
 
 
-class NmhGm2(KaitaiStruct):
+class Gmf2(KaitaiStruct):
     """Grasshopper Manufacture
     No More Heroes world chunk
     GMF - Grasshopper Model File?
@@ -107,16 +107,16 @@ class NmhGm2(KaitaiStruct):
             )
         self.textures = []
         for i in range(self.num_textures):
-            self.textures.append(NmhGm2.Texture(self._io, self, self._root))
+            self.textures.append(Gmf2.Texture(self._io, self, self._root))
 
         self.materials = []
         for i in range(self.num_materials):
-            self.materials.append(NmhGm2.Material(self._io, self, self._root))
+            self.materials.append(Gmf2.Material(self._io, self, self._root))
 
         self.world_objects = []
         for i in range(self.num_objects):
             self.world_objects.append(
-                NmhGm2.WorldObject(self._io.pos(), self._io, self, self._root)
+                Gmf2.WorldObject(self._io.pos(), self._io, self, self._root)
             )
 
     class WorldObject(KaitaiStruct):
@@ -134,9 +134,9 @@ class NmhGm2(KaitaiStruct):
             self.unk_0 = self._io.read_u4le()
             self.off_v_buf = self._io.read_u4le()
             self.off_parent = self._io.read_u4le()
-            self.off_obj_a = self._io.read_u4le()
-            self.off_obj_b = self._io.read_u4le()
-            self.off_obj_c = self._io.read_u4le()
+            self.off_children = self._io.read_u4le()
+            self.off_prev = self._io.read_u4le()
+            self.off_next = self._io.read_u4le()
             self.off_surf_list = self._io.read_u4le()
             self._unnamed8 = self._io.read_bytes(4)
             if not self._unnamed8 == b"\x00\x00\x00\x00":
@@ -155,17 +155,17 @@ class NmhGm2(KaitaiStruct):
                     "/types/world_object/seq/9",
                 )
             self.v_scale = self._io.read_s4le()
-            self.origin = NmhGm2.FlVector(self._io, self, self._root)
+            self.origin = Gmf2.FlVector(self._io, self, self._root)
             self.unkf_a = self._io.read_f4le()
             self.unk_b = self._io.read_u4le()
             self.rot_y = self._io.read_f4le()
             self.rot_z = self._io.read_f4le()
             self.unkf_11 = self._io.read_f4le()
-            self.scale = NmhGm2.FlVector(self._io, self, self._root)
+            self.scale = Gmf2.FlVector(self._io, self, self._root)
             self.off_data_c = self._io.read_u4le()
-            self.cullbox_origin = NmhGm2.FlVector(self._io, self, self._root)
+            self.cullbox_origin = Gmf2.FlVector(self._io, self, self._root)
             self.unkf_16 = self._io.read_f4le()
-            self.cullbox_size = NmhGm2.FlVector(self._io, self, self._root)
+            self.cullbox_size = Gmf2.FlVector(self._io, self, self._root)
             self.unkf_1a = self._io.read_f4le()
 
         class Surface(KaitaiStruct):
@@ -258,7 +258,7 @@ class NmhGm2(KaitaiStruct):
                         self.unk_1 = []
                         for i in range(self.num_smthn):
                             self.unk_1.append(
-                                NmhGm2.WorldObject.Surface.Face.I(
+                                Gmf2.WorldObject.Surface.Face.I(
                                     self._io, self, self._root
                                 )
                             )
@@ -282,7 +282,7 @@ class NmhGm2(KaitaiStruct):
                 io = self._root._io
                 _pos = io.pos()
                 io.seek(self.off_data)
-                self._m_faces = NmhGm2.WorldObject.Surface.Faces(io, self, self._root)
+                self._m_faces = Gmf2.WorldObject.Surface.Faces(io, self, self._root)
                 io.seek(_pos)
                 return getattr(self, "_m_faces", None)
 
@@ -297,7 +297,7 @@ class NmhGm2(KaitaiStruct):
                 self._m_v_buf = []
                 for i in range(self.num_i):
                     self._m_v_buf.append(
-                        NmhGm2.WorldObject.Surface.V(io, self, self._root)
+                        Gmf2.WorldObject.Surface.V(io, self, self._root)
                     )
 
                 io.seek(_pos)
@@ -329,7 +329,7 @@ class NmhGm2(KaitaiStruct):
                 self._m_surfaces = []
                 i = 0
                 while True:
-                    _ = NmhGm2.WorldObject.Surface(self.off_v_buf, io, self, self._root)
+                    _ = Gmf2.WorldObject.Surface(self.off_v_buf, io, self, self._root)
                     self._m_surfaces.append(_)
                     if _.off_next == 0:
                         break
@@ -411,14 +411,8 @@ class NmhGm2(KaitaiStruct):
                     )
                 self.off_texture = self._io.read_u4le()
                 self.unk_3 = self._io.read_u4le()
-                self.unkf_4 = self._io.read_f4le()
-                self.unkf_5 = self._io.read_f4le()
-                self.unkf_6 = self._io.read_f4le()
-                self.unkf_7 = self._io.read_f4le()
-                self.unkf_8 = self._io.read_f4le()
-                self.unkf_9 = self._io.read_f4le()
-                self.unkf_a = self._io.read_f4le()
-                self.unkf_b = self._io.read_f4le()
+                self.shaderparams_a = Gmf2.FlVector4(self._io, self, self._root)
+                self.shaderparams_b = Gmf2.FlVector4(self._io, self, self._root)
 
         @property
         def data(self):
@@ -428,7 +422,7 @@ class NmhGm2(KaitaiStruct):
             io = self._root._io
             _pos = io.pos()
             io.seek(self.off_data)
-            self._m_data = NmhGm2.Material.MaterialData(io, self, self._root)
+            self._m_data = Gmf2.Material.MaterialData(io, self, self._root)
             io.seek(_pos)
             return getattr(self, "_m_data", None)
 
@@ -443,6 +437,19 @@ class NmhGm2(KaitaiStruct):
             self.x = self._io.read_f4le()
             self.y = self._io.read_f4le()
             self.z = self._io.read_f4le()
+
+    class FlVector4(KaitaiStruct):
+        def __init__(self, _io, _parent=None, _root=None):
+            self._io = _io
+            self._parent = _parent
+            self._root = _root if _root else self
+            self._read()
+
+        def _read(self):
+            self.x = self._io.read_f4le()
+            self.y = self._io.read_f4le()
+            self.z = self._io.read_f4le()
+            self.w = self._io.read_f4le()
 
     class Texture(KaitaiStruct):
         def __init__(self, _io, _parent=None, _root=None):
@@ -467,7 +474,9 @@ class NmhGm2(KaitaiStruct):
                     "/types/texture/seq/4",
                 )
             self.size = self._io.read_u4le()
-            self.unk_5 = self._io.read_u4le()
+            self.unk_str = (
+                KaitaiStream.bytes_terminate(self._io.read_bytes(4), 0, False)
+            ).decode("SHIFT-JIS")
 
         @property
         def data(self):
