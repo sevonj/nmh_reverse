@@ -1,10 +1,15 @@
 # NMH
 
+No More Heroes
+
+## File lists
+- [RNHE41 (Wii US)](Files RNHE41.md)
+
 ## Roadmap
 
 ### Asset types
 
-- [ ] GMF2
+- [ ] [GMF2](/nmh_reverse/formats/gmf2)
     - [ ] Textures
         - [x] Extract GCT0 file
         - [ ] linked list
@@ -21,7 +26,7 @@
         - [ ] Geometry
             - [ ] Vertices
                 - [x] Common short int format
-                  - [x] Vertex scale 
+                    - [x] Vertex scale 
                 - [ ] Other formats...
             - [ ] Idx buffers
                 - [ ] Common tristrip format
@@ -37,7 +42,7 @@
         - [ ] Unknown references to other objects
         - [ ] data_c buffer
         - [ ] All values
-- [ ] FLCG
+- [ ] [FLCG](/nmh_reverse/formats/flcg)
     - [ ] Materials (what are these dummy materials even used for?)
     - [ ] Models
         - [ ] Linked list
@@ -51,9 +56,13 @@
             - [ ] Linked list?
             - [ ] unk_3
         - [ ] Unknown vectors
-- [ ] GCT0
+- [ ] [GCT0](/nmh_reverse/formats/gct0)
+    - [x] Size
+    - [x] Encodings 
+    - [ ] Convert to png
+    - [ ] Convert from png
+    - [ ] All header values
 - [ ] RMHG
-- [ ] RMHG Container bin
 - [ ] RSAR
 - [ ] RSTM
 - [ ] STMD

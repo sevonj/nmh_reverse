@@ -1,6 +1,12 @@
-# Welcome to MkDocs
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+Grasshopper Manufacture File Format Documentation
+
+- [File formats](formats)
+- [Progress](games/NMH/)
+- [Tools](tools)
+
+## MkDocs
+This uses [mkdocs](https://www.mkdocs.org).
 
 ## Commands
 

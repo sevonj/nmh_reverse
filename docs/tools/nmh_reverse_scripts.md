@@ -5,11 +5,12 @@
     [`GitHub`](https://github.com/sevonj/nmh_reverse)
     
     __Games__
-    `NMH`
+    [`NMH`](/nmh_reverse/games/NMH)
     
     __File formats__
-    `FLCG`
-    `GMF2` 
+    [`FLCG`](/nmh_reverse/formats/flcg)
+    [`GCT0`](/nmh_reverse/formats/gct0)
+    [`GMF2`](/nmh_reverse/formats/gmf2)
     
 
 A collection of scripts for tampering with NMH maps. Also contains Kaitai Struct files.
