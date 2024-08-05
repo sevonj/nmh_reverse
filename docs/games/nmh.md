@@ -1,0 +1,64 @@
+# NMH
+
+## Roadmap
+
+### Asset types
+
+- [ ] GMF2
+    - [ ] Textures
+        - [x] Extract GCT0 file
+        - [ ] linked list
+        - [ ] All values (in header, data is under GCT0)
+    - [ ] Materials 
+        - [ ] Extract
+        - [ ] linked list
+        - [ ] All values
+    - [ ] Objects
+        - [ ] Transform
+            - [x] Position
+            - [ ] Rotation
+            - [x] Scale
+        - [ ] Geometry
+            - [ ] Vertices
+                - [x] Common short int format
+                  - [x] Vertex scale 
+                - [ ] Other formats...
+            - [ ] Idx buffers
+                - [ ] Common tristrip format
+                    - [x] Indices
+                    - [ ] UV?
+                    - [ ] Normals?
+                    - [ ] Remaining data
+                - [ ] Other formats...
+            - [ ] Bones?
+            - [ ] Anims?
+        - [x] Culling
+        - [x] Hierarchy
+        - [ ] Unknown references to other objects
+        - [ ] data_c buffer
+        - [ ] All values
+- [ ] FLCG
+    - [ ] Materials (what are these dummy materials even used for?)
+    - [ ] Models
+        - [ ] Linked list
+        - [ ] Transform
+            - [x] Position
+            - [ ] Rotation?
+            - [ ] Scale?
+        - [ ] Data1
+        - [ ] Col Tris
+            - [x] Geometry
+            - [ ] Linked list?
+            - [ ] unk_3
+        - [ ] Unknown vectors
+- [ ] GCT0
+- [ ] RMHG
+- [ ] RMHG Container bin
+- [ ] RSAR
+- [ ] RSTM
+- [ ] STMD
+- [ ] SEST
+- [ ] STSD
+- [ ] THP
+- [ ] STRIMAG2
+- [ ] GAN2
