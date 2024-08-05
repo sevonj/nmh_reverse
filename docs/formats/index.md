@@ -3,7 +3,7 @@
 | ID                                    | Ext.          | Category | Desc.                          | Games                           |
 | ------------------------------------- | ------------- | -------- | ------------------------------ | ------------------------------- |
 | [**FLCG**](/nmh_reverse/formats/flcg) | `.gcl`        | Models   | Coll models.                   | [`NMH`](/nmh_reverse/games/NMH) |
-| GAN2                                  | `.bin`        | ?        |                                | [`NMH`](/nmh_reverse/games/NMH) |
+| GAN2                                  | `.bin` `.ga2` | Anim     |                                | [`NMH`](/nmh_reverse/games/NMH) |
 | [**GCT0**](/nmh_reverse/formats/gct0) | `.bin` `.gct` | Texture  | GHM texture format             | [`NMH`](/nmh_reverse/games/NMH) |
 | [**GMF2**](/nmh_reverse/formats/gmf2) | `.gm2`        | Models   | Gfx models. World, characters. | [`NMH`](/nmh_reverse/games/NMH) |
 | RMHG                                  | `.rsl`        | ?        |                                | [`NMH`](/nmh_reverse/games/NMH) |
