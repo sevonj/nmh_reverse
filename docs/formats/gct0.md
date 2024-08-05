@@ -20,12 +20,12 @@ A very simple texture container. Contains a small header and data starting from 
 ```cpp
 // Header
 
-int32 magic = 'GCT0';
-int32 encoding; // See enum Encoding below
-int16 w;
-int16 h;
+int magic = 'GCT0';
+int encoding;       // See enum Encoding below
+short w;
+short h;
 // 4-byte null?
-int32 unknown; // Flags?
+int unknown;        // Flags?
 
 ```
 

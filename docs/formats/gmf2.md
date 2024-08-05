@@ -26,13 +26,13 @@ GMF2 Contents:
   32B
 */
 struct {
-    char name[8];       // Texture name truncated to 8B.
-    int32 off_prev;     // Previous texture in linked list
-    int32 off_next;     // Next texture in linked list
-    int32 off_data;     // Texture data offset within this file
-    char zeropad[4];    // Maybe there's some unused value here.
-    int32 len_data;     // Texture data size
-    char unk_str[4];    // Unknown string truncated to 4B.
+    char name[8];     // Texture name truncated to 8B.
+    int off_prev;     // Previous texture in linked list
+    int off_next;     // Next texture in linked list
+    int off_data;     // Texture data offset within this file
+    char zeropad[4];  // Maybe there's some unused value here.
+    int len_data;     // Texture data size
+    char unk_str[4];  // Unknown string truncated to 4B.
 } textureHeader;
 ```
 
@@ -45,26 +45,24 @@ Texture data itself is just a baked in [GCT0](/nmh_reverse/formats/gct0) file.
   32B
 */
 struct {
-    char name[8];       // Material name truncated to 8B.
-    int32 off_prev;     // Previous material in linked list
-    int32 off_next;     // Next material in linked list
-    int32 unk_3;        // Maybe flags.
-    int32 off_data;     // Material data offset within this file
-    char zeropad[8];    // 
+    char name[8];     // Material name truncated to 8B.
+    int off_prev;     // Previous material in linked list
+    int off_next;     // Next material in linked list
+    int unk_3;        // Maybe flags.
+    int off_data;     // Material data offset
+    char zeropad[8];  // 
 } materialHeader;
-```
 
-```cpp
 /*
   Material data
   48B
 */
 struct {
-    char zeropad[8];            //
-    int32 off_texture;          // Offset of a textureHeader
-    int32 unk_3;                // Maybe flags.
-    float shaderparams_a[4];    //
-    float shaderparams_b[4];    // Often RGBA
+    char zeropad[8];          //
+    int off_texture;          // Texture header
+    int unk_3;                // Maybe flags.
+    float shaderparams_a[4];  //
+    float shaderparams_b[4];  // Often RGBA
 } materialData;
 ```
 
