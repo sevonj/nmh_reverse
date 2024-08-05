@@ -207,7 +207,10 @@ def get_nodetree_str(children: dict, nodes: dict, depth: int = 1):
     keys = children.keys()
     for key in keys:
         node = nodes[key]
-        ret_str += f"{"    " * depth}{key.ljust(7)} {node.name.ljust(10)} {"" if node.surfaces != None else "no_geometry"}\n"
+        ret_str += f"{"    " * depth}{key.ljust(7)} {node.name.ljust(10)}"
+        if node.surfaces == None:
+            ret_str += " [no_geo]"
+        ret_str += "\n"
         ret_str += get_nodetree_str(children[key], nodes, depth + 1)
     return ret_str
 
