@@ -26,6 +26,9 @@ A collection of scripts for tampering with NMH maps. Also contains Kaitai Struct
 ### unpack_all.py
 Unpacks everything that can be unpacked. If you just want the models, use this.
 
+### unpack_gct0.py
+Unusable for anything else than gathering info.
+
 ### unpack_flcg.py
 Extract an FLCG file (.GCL)
 
