@@ -67,6 +67,10 @@ def unpack(path: str, out_dir: str):
 
 
 def unpack_rgb5a3(gct0: GCT0, filepath: str):
+    """
+    Unusable.
+    Produces corrupted, but kinda recognizable images.
+    """
     img = Image.new("RGBA", (gct0.w, gct0.h), "black")
 
     with open(filepath, "rb") as f:
