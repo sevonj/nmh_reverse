@@ -11,12 +11,10 @@ No More Heroes
 
 - [ ] [GMF2](/nmh_reverse/formats/gmf2)
     - [ ] Textures
-        - [x] Extract GCT0 file
-        - [ ] linked list
-        - [ ] All values (in header, data is under GCT0)
-    - [ ] Materials 
-        - [ ] Extract
-        - [ ] linked list
+        - [ ] All values (header)
+        - [x] Data  
+            It's a GCT0 file.
+    - [ ] Materials
         - [ ] All values
     - [ ] Objects
         - [ ] Transform
@@ -39,7 +37,8 @@ No More Heroes
             - [ ] Anims?
         - [x] Culling
         - [x] Hierarchy
-        - [ ] Unknown references to other objects
+        - [x] Unknown references to other objects  
+                They're parent/first child/prev/next
         - [ ] data_c buffer
         - [ ] All values
 - [ ] [FLCG](/nmh_reverse/formats/flcg)
