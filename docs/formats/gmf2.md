@@ -140,13 +140,14 @@ Objects have position, scale and rotation. Parent's transform naturally affects 
 
 ### Geometry
 #### Vertex buffer
+
 Vertex buffers appear to only contain position. There's one shared vertex buffer for all surfaces in the model.
 
 ```cpp
 /*
   Almost all models in world chunks use this format.
   You need to divide the coords by 2^v_scale.
-  6B
+  6B Big Endian
 */
 struct {
   short x;
@@ -178,6 +179,7 @@ struct {
 
 ```cpp
 // Surface data
+// Big Endian
 
 int len_data;
 short num_indices;
