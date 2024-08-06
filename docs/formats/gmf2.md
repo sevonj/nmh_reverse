@@ -19,6 +19,33 @@ GMF2 Contents:
 - Objects
     - Geometry
 
+The format is _mostly_ little-endian.
+
+The file uses offsets and linked lists for everything, but it's also possible to traverse the file using texture/material/object counts.
+
+## Header
+```cpp
+/*
+  GMF2 header
+  56B (or more if there are unused values in the following null padding)
+*/
+struct {
+    char magic[4] = 'GMF2';   //
+    int version = 2;          // Probably.
+    char zeropad[16];         // 
+    short num_objects;        //
+    short num_textures;       //
+    short num_unused;         // Always 0?
+    short num_materials;      //
+    int off_objects;          //
+    int off_textures;         // Always 0x70
+    int off_unused;           // Always 0?
+    int off_materials;        //
+    int unk_0x30;             //
+    int unk_0x34;             //
+} gmf2Header;
+```
+
 ## Textures
 ```cpp
 /*
@@ -33,10 +60,10 @@ struct {
     char zeropad[4];  // Maybe there's some unused value here.
     int len_data;     // Texture data size
     char unk_str[4];  // Unknown string truncated to 4B.
-} textureHeader;
+} gmf2Texture;
 ```
 
-Texture data itself is just a baked in [GCT0](/nmh_reverse/formats/gct0) file.
+Texture data itself is just a [GCT0](/nmh_reverse/formats/gct0) file.
 
 ## Materials
 ```cpp
@@ -51,7 +78,7 @@ struct {
     int unk_3;        // Maybe flags.
     int off_data;     // Material data offset
     char zeropad[8];  // 
-} materialHeader;
+} gmf2Material;
 
 /*
   Material data
@@ -62,20 +89,49 @@ struct {
     int off_texture;          // Texture header
     int unk_3;                // Maybe flags.
     float shaderparams_a[4];  //
-    float shaderparams_b[4];  // Often RGBA
-} materialData;
+    float shaderparams_b[4];  // RGB(A?) tint
+} gmf2MaterialData;
 ```
 
 
 ## Objects
+
+```cpp
+/*
+  Object header
+  128B
+*/
+struct {
+    char name[8];               // Object name truncated to 8B.
+    int unk_0x8;                // Flags?
+    int off_v_buf;              // Vertex buffer offset.
+    int off_parent;             // Parent object
+    int off_firstchild;         // Child object
+    int off_prev;               // Previous object in linked list
+    int off_next;               // Next object in linked list
+    int off_surfaces;           //
+    int v_scale;                //
+    float position[3];          // XYZ coords.
+    float unk_0x3c;             // Unused 4th component of previous vector?
+    float rotation[3];          // Euler rotation? Quaternion? 
+    float unk_0x4c;             // 
+    float scale[3];             // XYZ scale.
+    float off_data_c;           // Either 1.0f or an offset to unknown data.
+    float cullbox_position[3];  // XYZ coords.
+    float unk_0x3c;             // Unused 4th component of previous vector?
+    float cullbox_size[3];      // XYZ size.
+    float unk_0x3c;             // Unused 4th component of previous vector?
+} gmf2Object;
+```
+
 ### Hierarchy and linked lists
 
 Objects have hierarchy; some are children of other objects.
-Each object knows up to four other objects within the file, as offsets.
+Each object knows up to four other objects in the file:
 
-:   **off_parent, off_firstchild, off_prev, off_next.**
+:   **parent, firstchild, prev, next.**
 
-These are either an object's offset in the file, or zero if there's no object.
+These references are either an offset in the file, or zero if there's no object.
 
 Prev/next chain together a linked list of objects that have the same parent. Parent/firstchild is a vertical chain up and down the hierarchy.
 
@@ -83,7 +139,53 @@ Prev/next chain together a linked list of objects that have the same parent. Par
 Objects have position, scale and rotation. Parent's transform naturally affects the children. Position and scale are obvious vectors, but rotation is unclear.
 
 ### Geometry
+#### Vertex buffer
+Vertex buffers appear to only contain position. There's one shared vertex buffer for all surfaces in the model.
 
+```cpp
+/*
+  Almost all models in world chunks use this format.
+  You need to divide the coords by 2^v_scale.
+  6B
+*/
+struct {
+  short x;
+  short y;
+  short z;
+}
+```
+#### Surfaces / Index buffers
+
+```cpp
+/*
+  Surface
+  32B
+*/
+struct {
+  int off_prev;     // Previous surface in linked list
+  int off_next;     // Next surface in linked list
+  int off_data;     // Surface data
+  int off_material; // Which material to use
+  short unk_0x10;   // 
+  short num_v;      // number of vertices in shared vertex buffer
+  char zeropad[4];  //
+  short unk_0x18;   //
+  short unk_0x1a;   //
+  short unk_0x1c;   //
+  short unk_0x1e;   //
+} gmf2Surface
+```
+
+```cpp
+// Surface data
+
+int len_data;
+short num_indices;
+short unknown;
+char zeropad[24];
+
+// Triangle strips until num_indices is exhausted.
+```
 
 ## More
 
