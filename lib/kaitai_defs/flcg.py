@@ -11,7 +11,7 @@ if getattr(kaitaistruct, "API_VERSION", (0, 9)) < (0, 9):
     )
 
 
-class NmhGcl(KaitaiStruct):
+class Flcg(KaitaiStruct):
     """FLCG
     No More Heroes World Collisions
     One distance unit appears to be 10m.
@@ -73,11 +73,11 @@ class NmhGcl(KaitaiStruct):
             )
         self.materials = []
         for i in range(self.num_materials):
-            self.materials.append(NmhGcl.Material(self._io, self, self._root))
+            self.materials.append(Flcg.Material(self._io, self, self._root))
 
         self.areas = []
         for i in range(self.num_areas):
-            self.areas.append(NmhGcl.Area(self._io, self, self._root))
+            self.areas.append(Flcg.Area(self._io, self, self._root))
 
     class Align(KaitaiStruct):
         """Byte alignment"""
@@ -166,7 +166,7 @@ class NmhGcl(KaitaiStruct):
                 )
             self.unk_2 = self._io.read_u4be()
             self.unk_3 = self._io.read_u4be()
-            self.origin = NmhGcl.FlVector(self._io, self, self._root)
+            self.origin = Flcg.FlVector(self._io, self, self._root)
             self._unnamed7 = self._io.read_bytes(4)
             if not self._unnamed7 == b"\x00\x00\x00\x00":
                 raise kaitaistruct.ValidationNotEqualError(
@@ -208,8 +208,8 @@ class NmhGcl(KaitaiStruct):
                 self.off_colmesh = self._io.read_u4be()
                 self.num_data1 = self._io.read_u4be()
                 self.num_col_tris = self._io.read_u4be()
-                self.unk_vec_a = NmhGcl.FlVector(self._io, self, self._root)
-                self.unk_vec_b = NmhGcl.FlVector(self._io, self, self._root)
+                self.unk_vec_a = Flcg.FlVector(self._io, self, self._root)
+                self.unk_vec_b = Flcg.FlVector(self._io, self, self._root)
 
             class Data1(KaitaiStruct):
                 """Contains references to collision tris."""
@@ -248,9 +248,9 @@ class NmhGcl(KaitaiStruct):
                             "/types/area/types/area_data/types/col_tri/seq/1",
                         )
                     self.unk_3 = self._io.read_u4be()
-                    self.v0 = NmhGcl.FlVector(self._io, self, self._root)
-                    self.v1 = NmhGcl.FlVector(self._io, self, self._root)
-                    self.v2 = NmhGcl.FlVector(self._io, self, self._root)
+                    self.v0 = Flcg.FlVector(self._io, self, self._root)
+                    self.v1 = Flcg.FlVector(self._io, self, self._root)
+                    self.v2 = Flcg.FlVector(self._io, self, self._root)
 
             @property
             def data1(self):
@@ -262,9 +262,7 @@ class NmhGcl(KaitaiStruct):
                 io.seek(self.off_data1)
                 self._m_data1 = []
                 for i in range(self.num_data1):
-                    self._m_data1.append(
-                        NmhGcl.Area.AreaData.Data1(io, self, self._root)
-                    )
+                    self._m_data1.append(Flcg.Area.AreaData.Data1(io, self, self._root))
 
                 io.seek(_pos)
                 return getattr(self, "_m_data1", None)
@@ -280,7 +278,7 @@ class NmhGcl(KaitaiStruct):
                 self._m_col_mesh = []
                 for i in range(self.num_col_tris):
                     self._m_col_mesh.append(
-                        NmhGcl.Area.AreaData.ColTri(io, self, self._root)
+                        Flcg.Area.AreaData.ColTri(io, self, self._root)
                     )
 
                 io.seek(_pos)
@@ -294,6 +292,6 @@ class NmhGcl(KaitaiStruct):
             io = self._root._io
             _pos = io.pos()
             io.seek(self.off_data)
-            self._m_data = NmhGcl.Area.AreaData(io, self, self._root)
+            self._m_data = Flcg.Area.AreaData(io, self, self._root)
             io.seek(_pos)
             return getattr(self, "_m_data", None)

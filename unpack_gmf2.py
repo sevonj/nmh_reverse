@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 import struct
 import sys
-from lib.kaitai_defs.gmf2 import NmhGm2
+from lib.kaitai_defs.gmf2 import Gmf2
 from glob import glob
 
 import unpack_gct0
@@ -19,7 +19,7 @@ Gm2Idx = namedtuple("Gm2Idx", "i u v")
 
 def extract_models(in_path: str, out_dir: str):
     print(f"\nExtracting objects:")
-    gm2: NmhGm2 = NmhGm2.from_file(in_path)
+    gm2: Gmf2 = Gmf2.from_file(in_path)
 
     # Meshes
 
@@ -175,7 +175,7 @@ def get_strips(surf) -> list:
 
 
 def extract_textures(in_path: str, out_dir: str):
-    gm2: NmhGm2 = NmhGm2.from_file(in_path)
+    gm2: Gmf2 = Gmf2.from_file(in_path)
     print(f"\nExtracting {gm2.num_textures} textures...")
 
     for i, texture in enumerate(gm2.textures):
@@ -216,7 +216,7 @@ def get_nodetree_str(children: dict, nodes: dict, depth: int = 1):
 
 
 def log_tree(in_path: str, log_path: str):
-    gm2: NmhGm2 = NmhGm2.from_file(in_path)
+    gm2: Gmf2 = Gmf2.from_file(in_path)
     with open(log_path, "w") as f:
         f.write(f"GMF2 info:\n{Path(in_path).stem}\n\n--- Scene Tree ---\n")
 

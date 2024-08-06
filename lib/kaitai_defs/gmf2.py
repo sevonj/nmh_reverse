@@ -54,14 +54,14 @@ class Gmf2(KaitaiStruct):
                 b"\x00\x00", self._unnamed5, self._io, "/seq/5"
             )
         self.num_materials = self._io.read_u2le()
-        self.unk_4 = self._io.read_u4le()
-        self.unk_5 = self._io.read_u4le()
+        self.off_objects = self._io.read_u4le()
+        self.off_textures = self._io.read_u4le()
         self._unnamed9 = self._io.read_bytes(4)
         if not self._unnamed9 == b"\x00\x00\x00\x00":
             raise kaitaistruct.ValidationNotEqualError(
                 b"\x00\x00\x00\x00", self._unnamed9, self._io, "/seq/9"
             )
-        self.unk_7 = self._io.read_u4le()
+        self.off_materials = self._io.read_u4le()
         self.unk_8 = self._io.read_u4le()
         self.unk_9 = self._io.read_u4le()
         self._unnamed13 = self._io.read_bytes(16)
@@ -134,7 +134,7 @@ class Gmf2(KaitaiStruct):
             self.unk_0 = self._io.read_u4le()
             self.off_v_buf = self._io.read_u4le()
             self.off_parent = self._io.read_u4le()
-            self.off_children = self._io.read_u4le()
+            self.off_firstchild = self._io.read_u4le()
             self.off_prev = self._io.read_u4le()
             self.off_next = self._io.read_u4le()
             self.off_surf_list = self._io.read_u4le()

@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 import sys
-from lib.kaitai_defs.flcg import NmhGcl
+from lib.kaitai_defs.flcg import Flcg
 from glob import glob
 
 TOOL_NAME = "Jyl's FLCG exporter"
@@ -13,7 +13,7 @@ OUT_DIR = "out/STG_HI"
 def unpack(in_path: str, out_dir: str):
     os.makedirs(out_dir, exist_ok=True)
     print(in_path)
-    gcl: NmhGcl = NmhGcl.from_file(in_path)
+    gcl: Flcg = Flcg.from_file(in_path)
 
     out_path = os.path.join(out_dir, Path(in_path).stem + ".obj")
 
@@ -40,7 +40,7 @@ def unpack(in_path: str, out_dir: str):
             last_index += area.data.num_col_tris
 
 
-def vert_2_obj(v: NmhGcl.FlVector, origin: NmhGcl.FlVector) -> str:
+def vert_2_obj(v: Flcg.FlVector, origin: Flcg.FlVector) -> str:
     """
     This bakes in object origin, because I don't think wavefront supports it.
     Coords are divided by 10 because the unit seems to be 10m.

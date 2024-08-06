@@ -4,7 +4,7 @@ meta:
   encoding: utf-8
   endian: be
 doc: |
-  FLCG
+  FLGC
   No More Heroes World Collisions
   One distance unit appears to be 10m.
 
@@ -82,9 +82,9 @@ types:
       - id: unk_1
         type: u4
       - contents: [0, 0, 0, 0, 0, 0, 0, 0]
-      - id: unk_2
+      - id: off_link_a
         type: u4
-      - id: unk_3
+      - id: off_link_b
         type: u4
       - id: origin
         type: fl_vector
@@ -139,10 +139,10 @@ types:
             doc: |
               Contains references to collision tris.
             seq:
-              - id: off_a
+              - id: off_link_c
                 doc: "Zero or offset of another entry of this list"
                 type: u4
-              - id: off_b
+              - id: off_link_d
                 doc: "Zero or offset of another entry of this list"
                 type: u4
               - id: off_col_tri

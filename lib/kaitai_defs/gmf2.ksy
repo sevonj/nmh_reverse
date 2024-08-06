@@ -27,12 +27,12 @@ seq:
   - contents: [0, 0]
   - id: num_materials
     type: u2le
-  - id: unk_4
+  - id: off_objects
     type: u4le
-  - id: unk_5
+  - id: off_textures
     type: u4le
   - contents: [0, 0, 0, 0]
-  - id: unk_7
+  - id: off_materials
     type: u4le
   - id: unk_8
     type: u4le
@@ -177,7 +177,7 @@ types:
         type: u4le
       - id: off_parent
         type: u4le
-      - id: off_children
+      - id: off_firstchild
         type: u4le
       - id: off_prev
         type: u4le
