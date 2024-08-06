@@ -38,6 +38,7 @@ A collection of scripts for tampering with NMH maps. Also contains Kaitai Struct
 
 **gm2_mangler.py**
 :   Platform for corrupting specific values and quick testing.
+    ![img](img/mangled.png){ align=left }
 
 **.ksy files**
 
