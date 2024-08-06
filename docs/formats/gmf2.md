@@ -147,7 +147,7 @@ Vertex buffers appear to only contain position. There's one shared vertex buffer
 /*
   Almost all models in world chunks use this format.
   You need to divide the coords by 2^v_scale.
-  6B Big Endian
+  6B big-endian
 */
 struct {
   short x;
@@ -179,7 +179,7 @@ struct {
 
 ```cpp
 // Surface data
-// Big Endian
+// big-endian
 
 int len_data;
 short num_indices;
@@ -187,6 +187,15 @@ short unknown;
 char zeropad[24];
 
 // Triangle strips until num_indices is exhausted.
+```
+
+```
+// Index format:
+// 11B big-endian
+  short idx;
+  3B Normal
+  2B Color
+  4B UV
 ```
 
 ## More
