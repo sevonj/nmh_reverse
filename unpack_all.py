@@ -35,14 +35,20 @@ def unpack_all(dir: str, out_dir: str):
                 os.makedirs(subdir)
                 try:
                     unpack_flcg.unpack(path, subdir)
-                except:
+                except Exception as e:
                     print(f"FAILED - {path}")
+                    with open(os.path.join(subdir, "_error_log.txt"), "w") as error_log:
+                        error_log.write(f"--- I HAVE FAILED ---\n\nException:\n")
+                        error_log.write(f"{e}")
 
             case b"GMF2":
                 try:
                     unpack_gmf2.unpack(path, subdir)
-                except:
+                except Exception as e:
                     print(f"FAILED - {path}")
+                    with open(os.path.join(subdir, "_error_log.txt"), "w") as error_log:
+                        error_log.write(f"--- I HAVE FAILED ---\n\nException:\n")
+                        error_log.write(f"{e}")
 
             case _:
                 print(f"unknown id: {magic} - {path}")
