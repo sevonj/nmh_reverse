@@ -188,14 +188,21 @@ char zeropad[24];
 
 // Triangle strips until num_indices is exhausted.
 ```
+##### Index formats
+It's unknown what determines the format.
 
 ```
-// Index format:
+// Vast majority of NMH open world models use this:
 // 11B big-endian
   short idx;
   3B Normal
   2B Color
   4B UV
+```
+
+```
+// Found in billboard model in NMH chunk 24 (the one with atm & burger suplex)
+// 9B sized data
 ```
 
 ## More
