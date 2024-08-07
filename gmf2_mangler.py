@@ -1,6 +1,6 @@
 import os
 import random
-from lib.kaitai_defs.gmf2 import NmhGm2
+from lib.kaitai_defs.gmf2 import Gmf2
 from glob import glob
 import struct
 import sys
@@ -14,20 +14,64 @@ OUT_DIR = "filesystem_edited/DATA/files/STG_HI"
 
 def mangle(in_path: str, out_path: str):
     print(f"mangling: {in_path}...")
-    gm2: NmhGm2 = NmhGm2.from_file(in_path)
+    gm2: Gmf2 = Gmf2.from_file(in_path)
 
     with open(out_path, "r+b") as f:
 
-        for obj in gm2.world_objects:
-            f.seek(obj.off + 96)
-            f.write(struct.pack("<f", 0))
-            f.write(struct.pack("<f", 0))
-            f.write(struct.pack("<f", 200))
+        for i, obj in enumerate(gm2.world_objects):
+            if obj.surfaces == None:
+                continue
 
-            f.seek(obj.off + 112)
-            f.write(struct.pack("<f", 0.01))
-            f.write(struct.pack("<f", 0.01))
-            f.write(struct.pack("<f", 0.01))
+            if obj.data_c != None:
+                print("has data_c")
+            else:
+                print("no data_c")
+
+            for ii, surf in enumerate(obj.surfaces):
+                # Index buffer
+                f.seek(surf.off_data + 32)
+                i_remaining = surf.faces.num_v_smthn_total
+                while i_remaining > 0:
+                    unk_0 = struct.unpack(">H", f.read(2))[0]
+
+                    # Unknown format guard
+                    if unk_0 != 0x99:
+                        print(f"unk_0 == {hex(unk_0)}", end="    ")
+                        print(f"obj[{i}]", end="    ")
+                        print(f"surf[{ii}]")
+                        break
+                    continue
+                    if i == 9:
+                        print(f"unk_0 == {hex(unk_0)}", end="    ")
+                        print(f"obj[{i}]", end="    ")
+                        print(f"surf[{ii}]")
+
+                    num_idx = struct.unpack(">H", f.read(2))[0]
+                    for _ in range(num_idx):
+                        _idx = struct.unpack(">H", f.read(2))[0]
+
+                        _v_normal = f.read(3)
+
+                        # Vertex Color
+                        # f.read(2)
+                        f.write(struct.pack(">H", 0xFFF0))
+
+                        # UV
+                        _u = struct.unpack(">h", f.read(2))[0]
+                        _v = struct.unpack(">h", f.read(2))[0]
+
+                    i_remaining -= num_idx
+
+        # for obj in gm2.world_objects:
+        #    f.seek(obj.off + 96)
+        #    f.write(struct.pack("<f", 0))
+        #    f.write(struct.pack("<f", 0))
+        #    f.write(struct.pack("<f", 200))
+        #
+        #    f.seek(obj.off + 112)
+        #    f.write(struct.pack("<f", 0.01))
+        #    f.write(struct.pack("<f", 0.01))
+        #    f.write(struct.pack("<f", 0.01))
 
         """ Geometry """
         # for obj in gm2.world_objects:
@@ -52,7 +96,7 @@ def mangle(in_path: str, out_path: str):
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
-        reset_files()
+        # reset_files()
 
         in_file = os.path.join(DIR, sys.argv[1])
         out_file = os.path.join(OUT_DIR, sys.argv[1])
