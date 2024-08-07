@@ -114,6 +114,8 @@ struct {
     int off_prev;               // Previous object in linked list
     int off_next;               // Next object in linked list
     int off_surfaces;           //
+    int unused;                 // probably unused
+    int unk_0x28;               // Zero in all world chunks.
     int v_scale;                // Determines vertex scale exponent
     float position[3];          // XYZ coords.
     float unk_0x3c;             // Unused 4th component of previous vector?
@@ -183,7 +185,7 @@ struct {
   int off_material; // Which material to use
   short unk_0x10;   // 
   short num_v;      // number of vertices in shared vertex buffer
-  char zeropad[4];  //
+  int unk_0x14;     // Zero in all world chunks
   short unk_0x18;   //
   short unk_0x1a;   //
   short unk_0x1c;   //

@@ -146,14 +146,7 @@ class Gmf2(KaitaiStruct):
                     self._io,
                     "/types/world_object/seq/8",
                 )
-            self._unnamed9 = self._io.read_bytes(4)
-            if not self._unnamed9 == b"\x00\x00\x00\x00":
-                raise kaitaistruct.ValidationNotEqualError(
-                    b"\x00\x00\x00\x00",
-                    self._unnamed9,
-                    self._io,
-                    "/types/world_object/seq/9",
-                )
+            self.unk_a = self._io.read_u4le()
             self.v_scale = self._io.read_s4le()
             self.origin = Gmf2.FlVector(self._io, self, self._root)
             self.unkf_a = self._io.read_f4le()
@@ -186,14 +179,7 @@ class Gmf2(KaitaiStruct):
                 self.off_material = self._io.read_u4le()
                 self.unk_4 = self._io.read_u2le()
                 self.num_i = self._io.read_u2le()
-                self._unnamed6 = self._io.read_bytes(4)
-                if not self._unnamed6 == b"\x00\x00\x00\x00":
-                    raise kaitaistruct.ValidationNotEqualError(
-                        b"\x00\x00\x00\x00",
-                        self._unnamed6,
-                        self._io,
-                        "/types/world_object/types/surface/seq/6",
-                    )
+                self.unk_5 = self._io.read_u4le()
                 self.unk_6 = self._io.read_u2le()
                 self.unk_7 = self._io.read_u2le()
                 self.unk_8 = self._io.read_u2le()

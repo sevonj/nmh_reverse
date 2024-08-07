@@ -205,7 +205,8 @@ types:
       - id: off_surf_list
         type: u4le
       - contents: [0, 0, 0, 0]
-      - contents: [0, 0, 0, 0]
+      - id: unk_a
+        type: u4le
       - id: v_scale
         doc: |
           Divide vertex coords by 2^v_scale.
@@ -275,7 +276,8 @@ types:
             type: u2le
           - id: num_i
             type: u2le
-          - contents: [0, 0, 0, 0]
+          - id: unk_5
+            type: u4le
           - id: unk_6
             type: u2le
           - id: unk_7
