@@ -82,6 +82,15 @@ types:
       - id: z
         type: f4le
 
+  fl_vector_be:
+    seq:
+      - id: x
+        type: f4
+      - id: y
+        type: f4
+      - id: z
+        type: f4
+
   fl_vector4:
     seq:
       - id: x
@@ -92,6 +101,15 @@ types:
         type: f4le
       - id: w
         type: f4le
+
+  short_vector:
+    seq:
+      - id: x
+        type: s2
+      - id: y
+        type: s2
+      - id: z
+        type: s2
 
   # --- Textures
 
@@ -229,7 +247,7 @@ types:
       surfaces:
         io: _root._io
         pos: off_surf_list
-        type: surface(off_v_buf)
+        type: surface(off_v_buf, v_scale)
         repeat: until
         repeat-until: _.off_next == 0
         if: off_surf_list != 0
@@ -241,6 +259,8 @@ types:
         params:
           - id: off_v_buf
             type: u4
+          - id: v_scale
+            type: s4
         seq:
           - id: off_prev
             type: u4le
@@ -273,19 +293,15 @@ types:
           v_buf:
             io: _root._io
             pos: off_v_buf
-            type: v
+            type:
+              switch-on: v_scale
+              cases:
+                -1: fl_vector_be
+                _: short_vector
             repeat: expr
             repeat-expr: num_i
 
         types:
-          v:
-            seq:
-              - id: x
-                type: s2
-              - id: y
-                type: s2
-              - id: z
-                type: s2
           faces:
             seq:
               - id: data_size
@@ -299,9 +315,7 @@ types:
 
               - id: data
                 size: data_size
-              #  type: face
-              #  repeat: until
-              #  repeat-until: _.unk_0 == 0
+
           face:
             seq:
               - id: unk_0

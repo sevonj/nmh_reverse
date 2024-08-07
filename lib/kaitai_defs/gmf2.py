@@ -171,11 +171,12 @@ class Gmf2(KaitaiStruct):
         class Surface(KaitaiStruct):
             """Headers are in a linked list."""
 
-            def __init__(self, off_v_buf, _io, _parent=None, _root=None):
+            def __init__(self, off_v_buf, v_scale, _io, _parent=None, _root=None):
                 self._io = _io
                 self._parent = _parent
                 self._root = _root if _root else self
                 self.off_v_buf = off_v_buf
+                self.v_scale = v_scale
                 self._read()
 
             def _read(self):
@@ -197,18 +198,6 @@ class Gmf2(KaitaiStruct):
                 self.unk_7 = self._io.read_u2le()
                 self.unk_8 = self._io.read_u2le()
                 self.unk_9 = self._io.read_u2le()
-
-            class V(KaitaiStruct):
-                def __init__(self, _io, _parent=None, _root=None):
-                    self._io = _io
-                    self._parent = _parent
-                    self._root = _root if _root else self
-                    self._read()
-
-                def _read(self):
-                    self.x = self._io.read_s2be()
-                    self.y = self._io.read_s2be()
-                    self.z = self._io.read_s2be()
 
             class Faces(KaitaiStruct):
                 def __init__(self, _io, _parent=None, _root=None):
@@ -296,9 +285,11 @@ class Gmf2(KaitaiStruct):
                 io.seek(self.off_v_buf)
                 self._m_v_buf = []
                 for i in range(self.num_i):
-                    self._m_v_buf.append(
-                        Gmf2.WorldObject.Surface.V(io, self, self._root)
-                    )
+                    _on = self.v_scale
+                    if _on == -1:
+                        self._m_v_buf.append(Gmf2.FlVectorBe(io, self, self._root))
+                    else:
+                        self._m_v_buf.append(Gmf2.ShortVector(io, self, self._root))
 
                 io.seek(_pos)
                 return getattr(self, "_m_v_buf", None)
@@ -329,7 +320,9 @@ class Gmf2(KaitaiStruct):
                 self._m_surfaces = []
                 i = 0
                 while True:
-                    _ = Gmf2.WorldObject.Surface(self.off_v_buf, io, self, self._root)
+                    _ = Gmf2.WorldObject.Surface(
+                        self.off_v_buf, self.v_scale, io, self, self._root
+                    )
                     self._m_surfaces.append(_)
                     if _.off_next == 0:
                         break
@@ -352,6 +345,30 @@ class Gmf2(KaitaiStruct):
             self._unnamed0 = self._io.read_bytes(
                 ((self.size - self._io.pos()) % self.size)
             )
+
+    class FlVectorBe(KaitaiStruct):
+        def __init__(self, _io, _parent=None, _root=None):
+            self._io = _io
+            self._parent = _parent
+            self._root = _root if _root else self
+            self._read()
+
+        def _read(self):
+            self.x = self._io.read_f4be()
+            self.y = self._io.read_f4be()
+            self.z = self._io.read_f4be()
+
+    class ShortVector(KaitaiStruct):
+        def __init__(self, _io, _parent=None, _root=None):
+            self._io = _io
+            self._parent = _parent
+            self._root = _root if _root else self
+            self._read()
+
+        def _read(self):
+            self.x = self._io.read_s2be()
+            self.y = self._io.read_s2be()
+            self.z = self._io.read_s2be()
 
     class Material(KaitaiStruct):
         def __init__(self, _io, _parent=None, _root=None):

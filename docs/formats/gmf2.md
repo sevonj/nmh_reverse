@@ -95,6 +95,10 @@ struct {
 
 
 ## Objects
+??? info "World coords"
+
+    The unit of distance in all 3d coordinates are 10m (or very close anyway, I didn't check).  
+    Divide them by 10 to get realistic sized models
 
 ```cpp
 /*
@@ -110,7 +114,7 @@ struct {
     int off_prev;               // Previous object in linked list
     int off_next;               // Next object in linked list
     int off_surfaces;           //
-    int v_scale;                //
+    int v_scale;                // Determines vertex scale exponent
     float position[3];          // XYZ coords.
     float unk_0x3c;             // Unused 4th component of previous vector?
     float rotation[3];          // Euler rotation? Quaternion? 
@@ -145,14 +149,24 @@ Vertex buffers appear to only contain position. There's one shared vertex buffer
 
 ```cpp
 /*
-  Almost all models in world chunks use this format.
-  You need to divide the coords by 2^v_scale.
+  Most models in world use this format. Divide the coords by 2^v_scale.
   6B big-endian
 */
 struct {
   short x;
   short y;
   short z;
+}
+```
+```cpp
+/*
+  if v_scale == -1, the buffer is float vectors instead. v_scale is not used.
+  12B big-endian
+*/
+struct {
+  float x;
+  float y;
+  float z;
 }
 ```
 #### Surfaces / Index buffers
