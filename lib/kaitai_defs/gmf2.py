@@ -482,14 +482,7 @@ class Gmf2(KaitaiStruct):
             self.off_prev = self._io.read_u4le()
             self.off_next = self._io.read_u4le()
             self.off_data = self._io.read_u4le()
-            self._unnamed4 = self._io.read_bytes(4)
-            if not self._unnamed4 == b"\x00\x00\x00\x00":
-                raise kaitaistruct.ValidationNotEqualError(
-                    b"\x00\x00\x00\x00",
-                    self._unnamed4,
-                    self._io,
-                    "/types/texture/seq/4",
-                )
+            self.unk_0x14 = self._io.read_u4be()
             self.size = self._io.read_u4le()
             self.unk_str = (
                 KaitaiStream.bytes_terminate(self._io.read_bytes(4), 0, False)

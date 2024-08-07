@@ -57,7 +57,7 @@ struct {
     int off_prev;     // Previous texture in linked list
     int off_next;     // Next texture in linked list
     int off_data;     // Texture data offset within this file
-    char zeropad[4];  // Maybe there's some unused value here.
+    int unk_0x14;     // Zero in all world chunks.
     int len_data;     // Texture data size
     char unk_str[4];  // Unknown string truncated to 4B.
 } gmf2Texture;

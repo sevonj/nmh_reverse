@@ -124,7 +124,8 @@ types:
         type: u4le
       - id: off_data
         type: u4le
-      - contents: [0, 0, 0, 0]
+      - id: unk_0x14
+        type: u4
       - id: size
         type: u4le
       - id: unk_str
