@@ -123,42 +123,35 @@ def extract_models(in_path: str, out_dir: str):
 
 def get_strips(surf) -> list:
     # Indices
-    i_buf = surf.faces.data
+    surfbuf = surf.faces.data
     strips = []
 
     head = 0
     i_remaining = surf.faces.num_v_smthn_total
     while i_remaining > 0:
-        unk_0 = struct.unpack('>H', i_buf[head:head+2])[0]
-        head += 2
-
-        if unk_0 != 0x99:
-            print(f"ERR: unk_0 == {unk_0}")
-            return []
-        
-        num_idx = struct.unpack('>H', i_buf[head:head+2])[0]
-        head += 2
+        unk_0 = struct.unpack('>H', surfbuf[head:head+2])[0]
+        num_idx = struct.unpack('>H', surfbuf[head+2:head+4])[0]
+        head += 4
 
         indices = []
-        for _ in range(num_idx):
-            idx = struct.unpack('>H', i_buf[head:head+2])[0]
-            head += 2
+        match unk_0:
+            case 0x99:
+                for _ in range(num_idx):
+                    ibuf = surfbuf[head:head+11]
+                    head += 11
 
-            # Probably normals
-            unk_1 = struct.unpack('>h', i_buf[head:head+2])[0]
-            head += 2
-            unk_2 = struct.unpack('>h', i_buf[head:head+2])[0]
-            head += 2
-            
-            u = struct.unpack('>b', i_buf[head:head+1])[0]
-            head += 1
-            v = struct.unpack('>b', i_buf[head:head+1])[0]
-            head += 1
+                    idx = struct.unpack('>H', ibuf[0:2])[0]
+                    _normal = ibuf[2:5]
+                    _color = ibuf[5:7]
+                    u = struct.unpack('>h', ibuf[7:9])[0]
+                    v = struct.unpack('>h', ibuf[9:11])[0]
 
-            indices.append(Gm2Idx(idx, u, v))
+                    indices.append(Gm2Idx(idx, u, v))
 
-            # Remaining bytes
-            head += 3
+            case _:
+                print(f"ERR: unk_0 == {hex(unk_0)}")
+                return []
+        
         
         new_indices = []
         for i in range(num_idx-2):
