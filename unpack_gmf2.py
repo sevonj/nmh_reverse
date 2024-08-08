@@ -30,16 +30,16 @@ def extract_models(in_path: str, out_dir: str):
 
     print(f"{"off".ljust(8)}", end="")
     print(f"{"name".ljust(10)}", end="")
-    print(f"{"v_scale".ljust(8)}", end="")
+    print(f"{"v_divisor".ljust(8)}", end="")
     print("surface progress", end="")
     print(" ")
     for i, key in enumerate(objects):
         print(f"{hex(world_object.off).ljust(8)}", end="")
         print(f"{world_object.name.ljust(10)}", end="")
-        print(f"{hex(world_object.v_scale).ljust(8)}", end="")
+        print(f"{hex(world_object.v_divisor).ljust(8)}", end="")
 
-        if world_object.v_scale < 0:
-            print("v_scale is negative. Resulting model is probably bad.", end=' ')
+        if world_object.v_divisor < 0:
+            print("v_divisor is negative. Resulting model is probably bad.", end=' ')
 
 
         world_object = objects[key]
@@ -89,9 +89,9 @@ def extract_models(in_path: str, out_dir: str):
                         vertices.append(Vec3(v.x, v.y, v.z))
                     
                     for v in vertices:
-                        x = (v.x / pow(2, world_object.v_scale) * scale_x + origin_x) * 0.1,
-                        y = (v.y / pow(2, world_object.v_scale) * scale_y + origin_y) * 0.1,
-                        z = (v.z / pow(2, world_object.v_scale) * scale_z + origin_z) * 0.1,
+                        x = (v.x / pow(2, world_object.v_divisor) * scale_x + origin_x) * 0.1,
+                        y = (v.y / pow(2, world_object.v_divisor) * scale_y + origin_y) * 0.1,
+                        z = (v.z / pow(2, world_object.v_divisor) * scale_z + origin_z) * 0.1,
                         f.write(f"v {x[0]} {y[0]} {z[0]}\n")
 
                 # Exit if something went wrong.
@@ -105,7 +105,7 @@ def extract_models(in_path: str, out_dir: str):
                         v = indices[i].v / pow(2, 4)
                         f.write(f"vt {u} {v}\n")
 
-                # Write Faces
+                # Write strips
                 
                 for indices in strips:
                     for i in range(len(indices)-2):
@@ -123,11 +123,11 @@ def extract_models(in_path: str, out_dir: str):
 
 def get_strips(surf) -> list:
     # Indices
-    surfbuf = surf.faces.data
+    surfbuf = surf.data.data
     strips = []
 
     head = 0
-    i_remaining = surf.faces.num_v_smthn_total
+    i_remaining = surf.data.num_v_smthn_total
     while i_remaining > 0:
         unk_0 = struct.unpack('>H', surfbuf[head:head+2])[0]
         num_idx = struct.unpack('>H', surfbuf[head+2:head+4])[0]

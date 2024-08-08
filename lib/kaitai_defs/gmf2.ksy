@@ -125,7 +125,7 @@ types:
       - id: off_data
         type: u4le
       - id: unk_0x14
-        type: u4
+        type: u4le
       - id: size
         type: u4le
       - id: unk_str
@@ -167,8 +167,8 @@ types:
       material_data:
         seq:
           - contents: [0, 0, 0, 0]
-          - contents: [0, 0, 0, 0]
-
+          - id: unk_0x04
+            type: u4le
           - id: off_texture
             type: u4le
           - id: unk_3
@@ -205,12 +205,12 @@ types:
       - id: off_surf_list
         type: u4le
       - contents: [0, 0, 0, 0]
-      - id: unk_a
+      - id: off_unk
         type: u4le
-      - id: v_scale
+      - id: v_divisor
         doc: |
-          Divide vertex coords by 2^v_scale.
-          Parent's v_scale doesn't affect children.
+          Divide vertex coords by 2^v_divisor.
+          Doesn't affect children.
         type: s4le
       - id: origin
         type: fl_vector
@@ -249,7 +249,7 @@ types:
       surfaces:
         io: _root._io
         pos: off_surf_list
-        type: surface(off_v_buf, v_scale)
+        type: surface(off_v_buf, v_divisor)
         repeat: until
         repeat-until: _.off_next == 0
         if: off_surf_list != 0
@@ -261,7 +261,7 @@ types:
         params:
           - id: off_v_buf
             type: u4
-          - id: v_scale
+          - id: v_divisor
             type: s4
         seq:
           - id: off_prev
@@ -274,7 +274,7 @@ types:
             type: u4le
           - id: unk_4
             type: u2le
-          - id: num_i
+          - id: num_v
             type: u2le
           - id: unk_5
             type: u4le
@@ -288,24 +288,24 @@ types:
             type: u2le
 
         instances:
-          faces:
+          data:
             io: _root._io
             pos: off_data
-            type: faces
+            type: surfdata
 
           v_buf:
             io: _root._io
             pos: off_v_buf
             type:
-              switch-on: v_scale
+              switch-on: v_divisor
               cases:
                 -1: fl_vector_be
                 _: short_vector
             repeat: expr
-            repeat-expr: num_i
+            repeat-expr: num_v
 
         types:
-          faces:
+          surfdata:
             seq:
               - id: data_size
                 type: u4
@@ -319,7 +319,7 @@ types:
               - id: data
                 size: data_size
 
-          face:
+          tristrip:
             seq:
               - id: unk_0
                 type: u2

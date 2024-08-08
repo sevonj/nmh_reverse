@@ -146,8 +146,8 @@ class Gmf2(KaitaiStruct):
                     self._io,
                     "/types/world_object/seq/8",
                 )
-            self.unk_a = self._io.read_u4le()
-            self.v_scale = self._io.read_s4le()
+            self.off_unk = self._io.read_u4le()
+            self.v_divisor = self._io.read_s4le()
             self.origin = Gmf2.FlVector(self._io, self, self._root)
             self.unkf_a = self._io.read_f4le()
             self.unk_b = self._io.read_u4le()
@@ -164,12 +164,12 @@ class Gmf2(KaitaiStruct):
         class Surface(KaitaiStruct):
             """Headers are in a linked list."""
 
-            def __init__(self, off_v_buf, v_scale, _io, _parent=None, _root=None):
+            def __init__(self, off_v_buf, v_divisor, _io, _parent=None, _root=None):
                 self._io = _io
                 self._parent = _parent
                 self._root = _root if _root else self
                 self.off_v_buf = off_v_buf
-                self.v_scale = v_scale
+                self.v_divisor = v_divisor
                 self._read()
 
             def _read(self):
@@ -178,14 +178,14 @@ class Gmf2(KaitaiStruct):
                 self.off_data = self._io.read_u4le()
                 self.off_material = self._io.read_u4le()
                 self.unk_4 = self._io.read_u2le()
-                self.num_i = self._io.read_u2le()
+                self.num_v = self._io.read_u2le()
                 self.unk_5 = self._io.read_u4le()
                 self.unk_6 = self._io.read_u2le()
                 self.unk_7 = self._io.read_u2le()
                 self.unk_8 = self._io.read_u2le()
                 self.unk_9 = self._io.read_u2le()
 
-            class Faces(KaitaiStruct):
+            class Surfdata(KaitaiStruct):
                 def __init__(self, _io, _parent=None, _root=None):
                     self._io = _io
                     self._parent = _parent
@@ -202,7 +202,7 @@ class Gmf2(KaitaiStruct):
                             b"\x00\x00\x00\x00\x00\x00\x00\x00",
                             self._unnamed3,
                             self._io,
-                            "/types/world_object/types/surface/types/faces/seq/3",
+                            "/types/world_object/types/surface/types/surfdata/seq/3",
                         )
                     self._unnamed4 = self._io.read_bytes(16)
                     if (
@@ -213,11 +213,11 @@ class Gmf2(KaitaiStruct):
                             b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
                             self._unnamed4,
                             self._io,
-                            "/types/world_object/types/surface/types/faces/seq/4",
+                            "/types/world_object/types/surface/types/surfdata/seq/4",
                         )
                     self.data = self._io.read_bytes(self.data_size)
 
-            class Face(KaitaiStruct):
+            class Tristrip(KaitaiStruct):
                 def __init__(self, _io, _parent=None, _root=None):
                     self._io = _io
                     self._parent = _parent
@@ -233,7 +233,7 @@ class Gmf2(KaitaiStruct):
                         self.unk_1 = []
                         for i in range(self.num_smthn):
                             self.unk_1.append(
-                                Gmf2.WorldObject.Surface.Face.I(
+                                Gmf2.WorldObject.Surface.Tristrip.I(
                                     self._io, self, self._root
                                 )
                             )
@@ -250,16 +250,16 @@ class Gmf2(KaitaiStruct):
                         self.unk = self._io.read_bytes(9)
 
             @property
-            def faces(self):
-                if hasattr(self, "_m_faces"):
-                    return self._m_faces
+            def data(self):
+                if hasattr(self, "_m_data"):
+                    return self._m_data
 
                 io = self._root._io
                 _pos = io.pos()
                 io.seek(self.off_data)
-                self._m_faces = Gmf2.WorldObject.Surface.Faces(io, self, self._root)
+                self._m_data = Gmf2.WorldObject.Surface.Surfdata(io, self, self._root)
                 io.seek(_pos)
-                return getattr(self, "_m_faces", None)
+                return getattr(self, "_m_data", None)
 
             @property
             def v_buf(self):
@@ -270,8 +270,8 @@ class Gmf2(KaitaiStruct):
                 _pos = io.pos()
                 io.seek(self.off_v_buf)
                 self._m_v_buf = []
-                for i in range(self.num_i):
-                    _on = self.v_scale
+                for i in range(self.num_v):
+                    _on = self.v_divisor
                     if _on == -1:
                         self._m_v_buf.append(Gmf2.FlVectorBe(io, self, self._root))
                     else:
@@ -307,7 +307,7 @@ class Gmf2(KaitaiStruct):
                 i = 0
                 while True:
                     _ = Gmf2.WorldObject.Surface(
-                        self.off_v_buf, self.v_scale, io, self, self._root
+                        self.off_v_buf, self.v_divisor, io, self, self._root
                     )
                     self._m_surfaces.append(_)
                     if _.off_next == 0:
@@ -404,14 +404,7 @@ class Gmf2(KaitaiStruct):
                         self._io,
                         "/types/material/types/material_data/seq/0",
                     )
-                self._unnamed1 = self._io.read_bytes(4)
-                if not self._unnamed1 == b"\x00\x00\x00\x00":
-                    raise kaitaistruct.ValidationNotEqualError(
-                        b"\x00\x00\x00\x00",
-                        self._unnamed1,
-                        self._io,
-                        "/types/material/types/material_data/seq/1",
-                    )
+                self.unk_0x04 = self._io.read_u4le()
                 self.off_texture = self._io.read_u4le()
                 self.unk_3 = self._io.read_u4le()
                 self.shaderparams_a = Gmf2.FlVector4(self._io, self, self._root)
@@ -468,7 +461,7 @@ class Gmf2(KaitaiStruct):
             self.off_prev = self._io.read_u4le()
             self.off_next = self._io.read_u4le()
             self.off_data = self._io.read_u4le()
-            self.unk_0x14 = self._io.read_u4be()
+            self.unk_0x14 = self._io.read_u4le()
             self.size = self._io.read_u4le()
             self.unk_str = (
                 KaitaiStream.bytes_terminate(self._io.read_bytes(4), 0, False)

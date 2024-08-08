@@ -100,6 +100,8 @@ struct {
     The unit of distance in all 3d coordinates are 10m (or very close anyway, I didn't check).  
     Divide them by 10 to get realistic sized models
 
+These seem to be used as bones in characters.
+
 ```cpp
 /*
   Object header
@@ -107,7 +109,7 @@ struct {
 */
 struct {
     char name[8];               // Object name truncated to 8B.
-    int unk_0x8;                // Flags?
+    int flags;                  // 
     int off_v_buf;              // Vertex buffer offset.
     int off_parent;             // Parent object
     int off_firstchild;         // Child object
@@ -116,7 +118,7 @@ struct {
     int off_surfaces;           //
     int unused;                 // probably unused
     int unk_0x28;               // Zero in all world chunks.
-    int v_scale;                // Determines vertex scale exponent
+    int v_divisor;              // Exponent of vertex divisor.
     float position[3];          // XYZ coords.
     float unk_0x3c;             // Unused 4th component of previous vector?
     float rotation[3];          // Euler rotation? Quaternion? 
@@ -128,6 +130,22 @@ struct {
     float cullbox_size[3];      // XYZ size.
     float unk_0x3c;             // Unused 4th component of previous vector?
 } gmf2Object;
+```
+### Flags
+```cpp
+/*
+  Very hastily tested. Probably not an exhaustive list.
+*/
+enum Flags
+{
+    VISIBLE           = 0x1,      // Hiding an object hides its children too.
+    D                 = 0x8,      // Makes dark billboarded objects transparent
+    BILLBOARD         = 0x40,     //
+    L                 = 0x800,    // Makes billboarded objects dark
+    NO_AMBIENT_LIGHT  = 0x1000,   // Shadows are pure black
+    NO_DIRECT_LIGHT   = 0x2000,   //
+    DONT_CAST_SHADOW  = 0x100000, //
+};
 ```
 
 ### Hierarchy and linked lists
@@ -151,7 +169,7 @@ Vertex buffers appear to only contain position. There's one shared vertex buffer
 
 ```cpp
 /*
-  Most models in world use this format. Divide the coords by 2^v_scale.
+  Most models in world use this format. Divide the coords by 2^v_divisor.
   6B big-endian
 */
 struct {
@@ -162,7 +180,7 @@ struct {
 ```
 ```cpp
 /*
-  if v_scale == -1, the buffer is float vectors instead. v_scale is not used.
+  if v_divisor == -1, the buffer is float vectors instead. Divisor is not used.
   12B big-endian
 */
 struct {
@@ -204,6 +222,19 @@ char zeropad[24];
 
 // Triangle strips until num_indices is exhausted.
 ```
+
+Triangle strip format:
+
+```cpp
+// big-endian, variable size
+
+// Guess: draw command. https://wiki.tockdom.com/wiki/Wii_Graphics_Code
+// always 0x99? 0x98 says tristrip, so maybe 0x99 is too.
+short command;
+short num_i;
+// Followed by indices, format varies.
+```
+
 ##### Index formats
 It's unknown what determines the format.
 
