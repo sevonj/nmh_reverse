@@ -124,7 +124,7 @@ struct {
     float rotation[3];          // Euler rotation? Quaternion? 
     float unk_0x4c;             // 
     float scale[3];             // XYZ scale.
-    float off_data_c;           // Either 1.0f or an offset to unknown data.
+    float off_i_format;         // Either 1.0f or an offset to index format.
     float cullbox_position[3];  // XYZ coords.
     float unk_0x3c;             // Unused 4th component of previous vector?
     float cullbox_size[3];      // XYZ size.
@@ -236,7 +236,7 @@ short num_i;
 ```
 
 ##### Index formats
-It's unknown what determines the format.
+It seems that a data pointed in the object determines the type.
 
 ```
 // Vast majority of NMH open world models use this:

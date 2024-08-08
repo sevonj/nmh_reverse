@@ -30,17 +30,11 @@ def extract_models(in_path: str, out_dir: str):
 
     print(f"{"off".ljust(8)}", end="")
     print(f"{"name".ljust(10)}", end="")
-    print(f"{"v_divisor".ljust(8)}", end="")
     print("surface progress", end="")
     print(" ")
     for i, key in enumerate(objects):
         print(f"{hex(world_object.off).ljust(8)}", end="")
         print(f"{world_object.name.ljust(10)}", end="")
-        print(f"{hex(world_object.v_divisor).ljust(8)}", end="")
-
-        if world_object.v_divisor < 0:
-            print("v_divisor is negative. Resulting model is probably bad.", end=' ')
-
 
         world_object = objects[key]
 
@@ -80,7 +74,7 @@ def extract_models(in_path: str, out_dir: str):
             for ii, surf in enumerate(world_object.surfaces):
                 f.write(f"usemtl {hex(surf.off_material)}\n")
                 print(f"{ii}..", end="")
-                strips = get_strips(surf)
+                strips = get_strips(surf, world_object)
 
                 # Write Vs (once)
                 if ii == 0:
@@ -121,7 +115,7 @@ def extract_models(in_path: str, out_dir: str):
             print("Done")
 
 
-def get_strips(surf) -> list:
+def get_strips(surf, obj) -> list:
     # Indices
     surfbuf = surf.data.data
     strips = []
@@ -129,27 +123,36 @@ def get_strips(surf) -> list:
     head = 0
     i_remaining = surf.data.num_v_smthn_total
     while i_remaining > 0:
-        unk_0 = struct.unpack('>H', surfbuf[head:head+2])[0]
+        command = struct.unpack('>H', surfbuf[head:head+2])[0]
         num_idx = struct.unpack('>H', surfbuf[head+2:head+4])[0]
         head += 4
 
         indices = []
-        match unk_0:
+        match command:
             case 0x99:
                 for _ in range(num_idx):
-                    ibuf = surfbuf[head:head+11]
-                    head += 11
 
-                    idx = struct.unpack('>H', ibuf[0:2])[0]
-                    _normal = ibuf[2:5]
-                    _color = ibuf[5:7]
-                    u = struct.unpack('>h', ibuf[7:9])[0]
-                    v = struct.unpack('>h', ibuf[9:11])[0]
+                    if obj.data_c == None:
+                        ibuf = surfbuf[head:head+9]
+                        head += 9
+                        idx = struct.unpack('>H', ibuf[0:2])[0]
+                    
+                        indices.append(Gm2Idx(idx, 0, 0))
+                    
+                    else:
+                        ibuf = surfbuf[head:head+11]
+                        head += 11
 
-                    indices.append(Gm2Idx(idx, u, v))
+                        idx = struct.unpack('>H', ibuf[0:2])[0]
+                        _normal = ibuf[2:5]
+                        _color = ibuf[5:7]
+                        u = struct.unpack('>h', ibuf[7:9])[0]
+                        v = struct.unpack('>h', ibuf[9:11])[0]
+
+                        indices.append(Gm2Idx(idx, u, v))
 
             case _:
-                print(f"ERR: unk_0 == {hex(unk_0)}")
+                print(f"ERR: unk_0 == {hex(command)}")
                 return []
         
         
@@ -203,8 +206,12 @@ def get_nodetree_str(children: dict, nodes: dict, depth: int = 1):
     for key in keys:
         node = nodes[key]
         ret_str += f"{"    " * depth}{key.ljust(7)} {node.name.ljust(10)}"
-        if node.surfaces == None:
-            ret_str += " [no_geo]"
+        
+        ret_str +="["
+        ret_str += "G" if node.surfaces != None else "-"    # Has geometry
+        ret_str += "C" if node.data_c != None else "-"      # Has data_c
+        ret_str +="]"
+        
         ret_str += "\n"
         ret_str += get_nodetree_str(children[key], nodes, depth + 1)
     return ret_str
