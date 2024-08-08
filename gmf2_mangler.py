@@ -22,29 +22,40 @@ def mangle(in_path: str, out_path: str):
             if obj.surfaces == None:
                 continue
 
-            if obj.data_c != None:
-                print("has data_c")
-            else:
-                print("no data_c")
+            f.seek(obj.off + 8)
+            f.write(struct.pack("<I", 0b0000_1111_0000_0000_0000_0000_1001))
+
+            print(f"obj[{i}]-{obj.name}")
+
+            continue
+            if i == 9 or i == 22:
+                continue
 
             for ii, surf in enumerate(obj.surfaces):
-                # Index buffer
+                print(f"    surf[{ii}] - {hex(surf.faces.unk_2)}")
+
+                # -- Destroy surf data
+                # if surf.off_next != 0:
+
+                # if surf.off_prev == obj.off_surf_list:
+                #    f.seek(surf.off_prev + 16)
+                #    f.write(struct.pack("<h", 0))
+
+                continue
+                # -- Destroy Index Data
+
                 f.seek(surf.off_data + 32)
                 i_remaining = surf.faces.num_v_smthn_total
+
                 while i_remaining > 0:
                     unk_0 = struct.unpack(">H", f.read(2))[0]
 
                     # Unknown format guard
                     if unk_0 != 0x99:
-                        print(f"unk_0 == {hex(unk_0)}", end="    ")
-                        print(f"obj[{i}]", end="    ")
-                        print(f"surf[{ii}]")
+                        # print(f"unk_0 == {hex(unk_0)}", end="    ")
+                        # print(f"obj[{i}]", end="    ")
+                        # print(f"surf[{ii}]")
                         break
-                    continue
-                    if i == 9:
-                        print(f"unk_0 == {hex(unk_0)}", end="    ")
-                        print(f"obj[{i}]", end="    ")
-                        print(f"surf[{ii}]")
 
                     num_idx = struct.unpack(">H", f.read(2))[0]
                     for _ in range(num_idx):
@@ -61,6 +72,7 @@ def mangle(in_path: str, out_path: str):
                         _v = struct.unpack(">h", f.read(2))[0]
 
                     i_remaining -= num_idx
+            print("")
 
         # for obj in gm2.world_objects:
         #    f.seek(obj.off + 96)
@@ -96,7 +108,7 @@ def mangle(in_path: str, out_path: str):
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
-        # reset_files()
+        reset_files()
 
         in_file = os.path.join(DIR, sys.argv[1])
         out_file = os.path.join(OUT_DIR, sys.argv[1])
