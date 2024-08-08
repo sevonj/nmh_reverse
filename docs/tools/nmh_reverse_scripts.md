@@ -40,6 +40,10 @@ A collection of scripts for tampering with NMH maps. Also contains Kaitai Struct
 :   Platform for corrupting specific values and quick testing.
     ![img](img/mangled.png){ align=left }
 
+**blender/recursive_obj.py**
+:   Convenience .obj import script for those who don't enjoy clicking through every world chunk separately.
+    You can find it [here](https://github.com/sevonj/nmh_reverse/blob/master/blender/recursive_obj.py).
+
 **.ksy files**
 
 :   See [Kaitai Struct](/nmh_reverse/tools/kaitaistruct)
