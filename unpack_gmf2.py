@@ -70,7 +70,7 @@ def extract_models(in_path: str, out_dir: str):
 
             f.write(f"o {Path(in_path).stem}_{i}_{world_object.name}\n")
 
-            last_index = 1
+            last_index = 0
             for ii, surf in enumerate(world_object.surfaces):
                 f.write(f"usemtl {hex(surf.off_material)}\n")
                 print(f"{ii}..", end="")
@@ -95,8 +95,8 @@ def extract_models(in_path: str, out_dir: str):
                 # Write UVs
                 for indices in strips:
                     for i in range(len(indices)):
-                        u = indices[i].u / pow(2, 4)
-                        v = indices[i].v / pow(2, 4)
+                        u = indices[i].u / pow(2, 10)
+                        v = indices[i].v / pow(2, 10)
                         f.write(f"vt {u} {v}\n")
 
                 # Write strips
@@ -106,11 +106,11 @@ def extract_models(in_path: str, out_dir: str):
                         va = indices[i].i + 1
                         vb = indices[i+1].i + 1
                         vc = indices[i+2].i + 1
-                        vta = last_index
-                        vtb = last_index + 1
-                        vtc = last_index + 2
+                        vta = last_index + i + 1
+                        vtb = last_index + i + 1 + 1
+                        vtc = last_index + i + 1 + 2
                         f.write(f"f {va}/{vta} {vb}/{vtb} {vc}/{vtc}\n")
-                        last_index += 1
+                    last_index += len(indices)
 
             print("Done")
 
@@ -133,11 +133,19 @@ def get_strips(surf, obj) -> list:
                 for _ in range(num_idx):
 
                     if obj.data_c == None:
+                        # Vertex format isn't defined, use default.
+                        # 9B: iinnnuuuu
                         ibuf = surfbuf[head:head+9]
                         head += 9
+
                         idx = struct.unpack('>H', ibuf[0:2])[0]
+                        
+                        # skip 3B normal
+
+                        u = struct.unpack('>h', ibuf[5:7])[0]
+                        v = struct.unpack('>h', ibuf[7:9])[0]
                     
-                        indices.append(Gm2Idx(idx, 0, 0))
+                        indices.append(Gm2Idx(idx, u, v))
                     
                     else:
                         ibuf = surfbuf[head:head+11]
