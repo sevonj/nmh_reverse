@@ -22,56 +22,91 @@ def mangle(in_path: str, out_path: str):
             if obj.surfaces == None:
                 continue
 
-            f.seek(obj.off + 8)
-            f.write(struct.pack("<I", 0b0000_1111_0000_0000_0000_0000_1001))
-
             print(f"obj[{i}]-{obj.name}")
 
-            continue
-            if i == 9 or i == 22:
+            # -- Object flags
+            # f.seek(obj.off + 8)
+            # f.write(struct.pack("<I", 0b0000_1111_0000_0000_0000_0000_1001))
+
+            if obj.data_c != None:
                 continue
 
             for ii, surf in enumerate(obj.surfaces):
-                print(f"    surf[{ii}] - {hex(surf.faces.unk_2)}")
+                print(f"    surf[{ii}] - {hex(surf.data.unk_2)}")
 
                 # -- Destroy surf data
-                # if surf.off_next != 0:
+                if True:
+                    if surf.off_next != 0:
+                        f.seek(surf.off_next + 0x1A)
+                        f.write(random.randbytes(2))
+                        # f.seek(2, 1)
+                        # f.write(random.randbytes(12))
 
-                # if surf.off_prev == obj.off_surf_list:
-                #    f.seek(surf.off_prev + 16)
-                #    f.write(struct.pack("<h", 0))
+                    if surf.off_prev == obj.off_surf_list:
+                        f.seek(surf.off_prev + 0x1A)
+                        f.write(random.randbytes(2))
+                        # f.seek(2, 1)
+                        # f.write(random.randbytes(12))
 
-                continue
-                # -- Destroy Index Data
+                if False:
+                    f.seek(surf.off_data + 6)
+                    f.write(random.randbytes(2))
 
-                f.seek(surf.off_data + 32)
-                i_remaining = surf.faces.num_v_smthn_total
+                # -- Destroy Vertex Data
+                if False:
+                    f.seek(surf.off_data + 32)
 
-                while i_remaining > 0:
-                    unk_0 = struct.unpack(">H", f.read(2))[0]
+                    i_remaining = surf.data.num_v_smthn_total
+                    while i_remaining > 0:
+                        unk_0 = struct.unpack(">H", f.read(2))[0]
 
-                    # Unknown format guard
-                    if unk_0 != 0x99:
-                        # print(f"unk_0 == {hex(unk_0)}", end="    ")
-                        # print(f"obj[{i}]", end="    ")
-                        # print(f"surf[{ii}]")
-                        break
+                        # Unknown format guard
+                        if unk_0 != 0x99:
+                            print(f"unk_0 == {hex(unk_0)}", end="    ")
+                            print(f"obj[{i}]", end="    ")
+                            print(f"surf[{ii}]")
+                            break
 
-                    num_idx = struct.unpack(">H", f.read(2))[0]
-                    for _ in range(num_idx):
-                        _idx = struct.unpack(">H", f.read(2))[0]
+                        num_idx = struct.unpack(">H", f.read(2))[0]
+                        for _ in range(num_idx):
 
-                        _v_normal = f.read(3)
+                            # 9B: iinnnuuuu
 
-                        # Vertex Color
-                        # f.read(2)
-                        f.write(struct.pack(">H", 0xFFF0))
+                            _idx = struct.unpack(">H", f.read(2))[0]
 
-                        # UV
-                        _u = struct.unpack(">h", f.read(2))[0]
-                        _v = struct.unpack(">h", f.read(2))[0]
+                            f.read(3)  # Normals
 
-                    i_remaining -= num_idx
+                            # Flip uv
+                            if False:
+                                u = struct.unpack(">h", f.read(2))[0]
+                                v = struct.unpack(">h", f.read(2))[0]
+                                f.seek(-4, 1)
+                                f.write(struct.pack(">h", -u))
+                                f.write(struct.pack(">h", -v))
+
+                            if False:
+                                f.read(1)
+                                f.write(b"\x00")
+                                f.read(1)
+                                f.write(b"\x00")
+
+                            if True:
+                                f.write(struct.pack(">h", -1))
+                                f.write(struct.pack(">h", -1))
+
+                            # f.write(random.randbytes(1))
+
+                            # _v_normal = f.read(3)
+
+                            # Vertex Color
+                            # f.read(2)
+                            # f.write(struct.pack(">H", 0xFFF0))
+
+                            # UV
+                            # _u = struct.unpack(">h", f.read(2))[0]
+                            # _v = struct.unpack(">h", f.read(2))[0]
+
+                        i_remaining -= num_idx
             print("")
 
         # for obj in gm2.world_objects:
