@@ -201,13 +201,13 @@ struct {
   int off_next;     // Next surface in linked list
   int off_data;     // Surface data
   int off_material; // Which material to use
-  short unk_0x10;   // 
+  short unk_0x10;   // Corrupting this seems to do nothing.
   short num_v;      // number of vertices in shared vertex buffer
   int unk_0x14;     // Zero in all world chunks
-  short unk_0x18;   //
-  short unk_0x1a;   //
-  short unk_0x1c;   //
-  short unk_0x1e;   //
+  short unk_0x18;   // Corrupting this crashes the game.
+  short unk_0x1a;   // Corrupting this causes transparency glitches.
+  short unk_0x1c;   // Corrupting this seems to do nothing.
+  short unk_0x1e;   // Corrupting this seems to do nothing.
 } gmf2Surface
 ```
 
@@ -217,7 +217,7 @@ struct {
 
 int len_data;
 short num_indices;
-short unknown;
+short unknown;      // Corrupting this seems to do nothing.
 char zeropad[24];
 
 // Triangle strips until num_indices is exhausted.
