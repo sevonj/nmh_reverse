@@ -21,3 +21,10 @@ This uses [mkdocs](https://www.mkdocs.org).
     docs/
         index.md  # The documentation homepage.
         ...       # Other markdown pages, images and other files.
+
+## License
+[GHM Docs](https://github.com/sevonj/nmh_reverse/tree/master/docs) © 2024 by [sevonj](https://github.com/sevonj) is licensed [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1)
+
+![](img/by-nc-sa.png)
+
+Any code snippets within this documentation are completely free to use.
