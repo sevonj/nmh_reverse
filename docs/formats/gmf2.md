@@ -8,7 +8,8 @@
     `.gm2`
 
     __Tools__  
-    [nmh_reverse_scripts](/nmh_reverse/tools/nmh_reverse_scripts)
+    [nmh_reverse_scripts](/nmh_reverse/tools/nmh_reverse_scripts)  
+    [GMF2-Tools](/nmh_reverse/tools/tcp-23-gmf2-tools)
 
 Grasshopper model file.
 
@@ -48,7 +49,7 @@ struct GMF2Header {
 ```cpp
 // Texture header
 // 32B little-endian
-struct gmf2Texture {
+struct GMF2Texture {
     int8_t name[8];     // Texture name truncated to 8B.
     int32_t off_prev;   // Previous texture in linked list
     int32_t off_next;   // Next texture in linked list
