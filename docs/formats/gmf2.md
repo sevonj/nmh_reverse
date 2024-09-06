@@ -25,70 +25,64 @@ The file uses offsets and linked lists for everything, but it's also possible to
 
 ## Header
 ```cpp
-// GMF2 header 56B(or more if there are unused values in the following null
-// padding) struct GMF2Header {
+// GMF2 header
+// 56B little-endian
 struct GMF2Header {
-  char magic[4];        // 'GMF2'
-  int version;          // 2, Probably version.
-  char zeropad[16];     //
-  short num_objects;    //
-  short num_textures;   //
-  short num_unused;     //
-  short num_materials;  //
-  int off_objects;      //
-  int off_textures;     // Always 0x70
-  int off_unused;       //
-  int off_materials;    //
-  int unk_0x30;         //
-  int unk_0x34;         //
+  int8_t magic[4];        // 'GMF2'
+  int32_t version;        // 2, Probably version.
+  int8_t zeropad[16];     //
+  int16_t num_objects;    //
+  int16_t num_textures;   //
+  int16_t num_unused;     //
+  int16_t num_materials;  //
+  int32_t off_objects;    //
+  int32_t off_textures;   // Always 0x70
+  int32_t off_unused;     //
+  int32_t off_materials;  //
+  int32_t unk_0x30;       //
+  int32_t unk_0x34;       //
 };
 ```
 
 ## Textures
 ```cpp
-/*
-  Texture header
-  32B
-*/
-struct {
-    char name[8];     // Texture name truncated to 8B.
-    int off_prev;     // Previous texture in linked list
-    int off_next;     // Next texture in linked list
-    int off_data;     // Texture data offset within this file
-    int unk_0x14;     // Zero in all world chunks.
-    int len_data;     // Texture data size
-    char unk_str[4];  // Unknown string truncated to 4B.
-} gmf2Texture;
+// Texture header
+// 32B little-endian
+struct gmf2Texture {
+    int8_t name[8];     // Texture name truncated to 8B.
+    int32_t off_prev;   // Previous texture in linked list
+    int32_t off_next;   // Next texture in linked list
+    int32_t off_data;   // Texture data offset within this file
+    int32_t unk_0x14;   // Zero in all world chunks.
+    int32_t len_data;   // Texture data size
+    int8_t unk_str[4];  // Unknown string truncated to 4B.
+};
 ```
 
 Texture data itself is just a [GCT0](/nmh_reverse/formats/gct0) file.
 
 ## Materials
 ```cpp
-/*
-  Material header
-  32B
-*/
-struct {
-    char name[8];     // Material name truncated to 8B.
-    int off_prev;     // Previous material in linked list
-    int off_next;     // Next material in linked list
-    int unk_3;        // Maybe flags.
-    int off_data;     // Material data offset
-    char zeropad[8];  // 
-} gmf2Material;
+// Material header
+// 32B little-endian
+struct GMF2Material {
+    int8_t name[8];     // Material name truncated to 8B.
+    int32_t off_prev;   // Previous material in linked list
+    int32_t off_next;   // Next material in linked list
+    int32_t unk_3;      // Maybe flags.
+    int32_t off_data;   // Material data offset
+    int8_t zeropad[8];  // 
+};
 
-/*
-  Material data
-  48B
-*/
-struct {
-    char zeropad[8];          //
-    int off_texture;          // Texture header
-    int unk_3;                // Maybe flags.
+// Material data
+// 48B little-endian
+struct GMF2MaterialData {
+    int8_t zeropad[8];        //
+    int32_t off_texture;      // Texture header
+    int32_t unk_3;            // Maybe flags.
     float shaderparams_a[4];  //
     float shaderparams_b[4];  // RGB(A?) tint
-} gmf2MaterialData;
+};
 ```
 
 
@@ -98,23 +92,23 @@ struct {
     The unit of distance in all 3d coordinates are 10m (or very close anyway, I didn't check).  
     Divide them by 10 to get realistic sized models
 
-These seem to be used as bones in characters.
+These seem to be used as bones in int8_tacters.
 
 ```cpp
 // Object header
-// 128B
+// 128B little-endian
 struct GMF2Object {
-  char name[8];               // Object name truncated to 8B. Shift JIS
-  int flags;                  //
-  int off_v_buf;              // Vertex buffer offset.
-  int off_parent;             // Parent object
-  int off_firstchild;         // Child object
-  int off_prev;               // Previous object in linked list
-  int off_next;               // Next object in linked list
-  int off_surfaces;           //
-  int unused;                 // probably unused
-  int unk_0x28;               // Zero in all world chunks.
-  int v_divisor;              // Exponent of vertex divisor.
+  int8_t name[8];             // Object name truncated to 8B. Shift JIS
+  int32_t flags;              //
+  int32_t off_v_buf;          // Vertex buffer offset.
+  int32_t off_parent;         // Parent object
+  int32_t off_firstchild;     // Child object
+  int32_t off_prev;           // Previous object in linked list
+  int32_t off_next;           // Next object in linked list
+  int32_t off_surfaces;       //
+  int32_t unused;             // probably unused
+  int32_t unk_0x28;           // Zero in all world chunks.
+  int32_t v_divisor;          // Exponent of vertex divisor.
   float position[3];          // XYZ coords.
   float unk_0x3c;             // Unused 4th component of previous vector?
   float rotation[3];          // Euler rotation? Quaternion?
@@ -178,26 +172,25 @@ float z;
 
 ```cpp
 // Surface
-// 32B
+// 32B little-endian
 struct GMF2Surface {
-  int off_prev;      // Previous surface in linked list
-  int off_next;      // Next surface in linked list
-  int off_data;      // Surface data
-  int off_material;  // Which material to use
-  short unk_0x10;    // Corrupting this seems to do nothing.
-  short num_v;       // number of vertices in shared vertex buffer
-  int unk_0x14;      // Zero in all world chunks
-  short unk_0x18;    // Corrupting this crashes the game.
-  short unk_0x1a;    // Corrupting this causes transparency glitches.
-  short unk_0x1c;    // Corrupting this seems to do nothing.
-  short unk_0x1e;    // Corrupting this seems to do nothing.
+  int32_t off_prev;     // Previous surface in linked list
+  int32_t off_next;     // Next surface in linked list
+  int32_t off_data;     // Surface data
+  int32_t off_material; // Which material to use
+  int16_t unk_0x10;     // Corrupting this seems to do nothing.
+  int16_t num_v;        // number of vertices in shared vertex buffer
+  int32_t unk_0x14;     // Zero in all world chunks
+  int16_t unk_0x18;     // Corrupting this crashes the game.
+  int16_t unk_0x1a;     // Corrupting this causes transparency glitches.
+  int16_t unk_0x1c;     // Corrupting this seems to do nothing.
+  int16_t unk_0x1e;     // Corrupting this seems to do nothing.
 };
 ```
 
 ```cpp
 // Surface data
-// big-endian
-
+// 32B big-endian
 uint32_t len_data;
 uint16_t num_vertices;
 int16_t unknown;      // Corrupting this seems to do nothing.
@@ -211,7 +204,7 @@ Each surface contains a number of tri-strips. Keep reading them until num_vertic
 
 ```cpp
 // Triangle strip header
-// 4B big-endian, variable size
+// 4B big-endian
 uint16_t command;  // GPU command?
 uint16_t num_v;    // Number of vertices in this strip
 ```
