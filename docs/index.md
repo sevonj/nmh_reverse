@@ -1,26 +1,17 @@
 
 Grasshopper Manufacture File Format Documentation
 
+Quick links:
+
 - [File formats](formats)
 - [Progress](games/NMH/)
 - [Tools](tools)
 
 ## MkDocs
-This uses [mkdocs](https://www.mkdocs.org).
+This site is built with [mkdocs](https://www.mkdocs.org) and [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/)
 
-## Commands
-
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+- [Installation instructions](https://squidfunk.github.io/mkdocs-material/getting-started/)
+- Run the site locally: `mkdocs serve`
 
 ## License
 [GHM Docs](https://github.com/sevonj/nmh_reverse/tree/master/docs) © 2024 by [sevonj](https://github.com/sevonj) is licensed [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1)
