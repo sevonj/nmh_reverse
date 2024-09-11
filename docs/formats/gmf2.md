@@ -124,7 +124,7 @@ struct {
     float rotation[3];          // Euler rotation? Quaternion? 
     float unk_0x4c;             // 
     float scale[3];             // XYZ scale.
-    float off_i_format;         // Either 1.0f or an offset to index format.
+    float off_v_format;         // Either 1.0f or an offset to vertex format.
     float cullbox_position[3];  // XYZ coords.
     float unk_0x3c;             // Unused 4th component of previous vector?
     float cullbox_size[3];      // XYZ size.
@@ -163,9 +163,9 @@ Prev/next chain together a linked list of objects that have the same parent. Par
 Objects have position, scale and rotation. Parent's transform naturally affects the children. Position and scale are obvious vectors, but rotation is unclear.
 
 ### Geometry
-#### Vertex buffer
+#### Vertex positions
 
-Vertex buffers appear to only contain position. There's one shared vertex buffer for all surfaces in the model.
+Vertex positions are stored in their own buffer. There's one shared buffer for all surfaces in the model.
 
 ```cpp
 /*
@@ -189,7 +189,8 @@ struct {
   float z;
 }
 ```
-#### Surfaces / Index buffers
+
+#### Surfaces
 
 ```cpp
 /*
@@ -210,47 +211,59 @@ struct {
   short unk_0x1e;   // Corrupting this seems to do nothing.
 } gmf2Surface
 ```
+##### Draw Lists
 
 ```cpp
-// Surface data
+// Surface data / draw list
 // big-endian
 
 int len_data;
-short num_indices;
+short num_vertices;
 short unknown;      // Corrupting this seems to do nothing.
 char zeropad[24];
 
-// Triangle strips until num_indices is exhausted.
+// Triangle strips until num_vertices is exhausted.
 ```
-
-Triangle strip format:
+##### Draw Items
+All draw items are triangle strips (?)
 
 ```cpp
 // big-endian, variable size
 
-// Guess: draw command. https://wiki.tockdom.com/wiki/Wii_Graphics_Code
-// always 0x99? 0x98 says tristrip, so maybe 0x99 is too.
-short command;
-short num_i;
-// Followed by indices, format varies.
+short command;      // Draw command, always 0x99(?), which is indexed tristrip
+short num_vertices; // Vertices in this tristrip.
+// Followed vertex data, format varies.
 ```
 
-##### Index formats
-It seems that a data pointed in the object determines the type.
+###### Vertex formats
+
+Vertex format varies. Format is described at `object->off_v_format`. If the offset is 0, default format is used.
+
+Formats are not figured out.
+
+```
+// Default format
+// 9B big-endian
+short idx;      // Vertex position idx
+byte vn_x;      // Vertex normal
+byte vn_y;      // Vertex normal
+byte vn_z;      // Vertex normal
+short u;
+short v;
+```
 
 ```
 // Vast majority of NMH open world models use this:
 // 11B big-endian
-  short idx;
-  3B Normal
-  2B Color
-  4B UV
+short idx;      // Vertex position idx
+byte vn_x;      // Vertex normal
+byte vn_y;      // Vertex normal
+byte vn_z;      // Vertex normal
+byte col[2];    // 2B vertex color, not properly examined
+short u;
+short v;
 ```
 
-```
-// Found in billboard model in NMH chunk 24 (the one with atm & burger suplex)
-// 9B sized data
-```
 
 ## More
 

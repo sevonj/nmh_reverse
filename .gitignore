@@ -3,6 +3,7 @@ __pycache__
 
 # game files
 filesystem/
+filesystem_nmh2/
 filesystem_edited/
 out/
 

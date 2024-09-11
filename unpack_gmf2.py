@@ -1,11 +1,11 @@
 from collections import namedtuple
+from enum import Enum
 import os
 from pathlib import Path
 import struct
 import sys
 from lib.kaitai_defs.gmf2 import Gmf2
-from glob import glob
-
+import numpy
 import unpack_gct0
 
 TOOL_NAME = "Jyl's GMF2 exporter"
@@ -13,9 +13,35 @@ TOOL_NAME = "Jyl's GMF2 exporter"
 DIR = "filesystem/DATA/files/STG_HI"
 OUT_DIR = "out/STG_HI"
 
-Vec3 = namedtuple("Vec3", "x y z")
 
-Gm2Idx = namedtuple("Gm2Idx", "i u v")
+class GfxCmd(Enum):
+    """
+    Wii Graphics Code Commands
+    A guess. https://wiki.tockdom.com/wiki/Wii_Graphics_Code
+    """
+    NOP                     = 0x00
+    LOAD_CP_REG             = 0x08
+    LOAD_XF_REG             = 0x10
+    LOAD_INDEXED_POS_MATRIX = 0x20
+    LOAD_INDEXED_NRM_MATRIX = 0x28
+    LOAD_INDEXED_TEX_MATRIX = 0x30
+    LOAD_INDEXED_LIGHT_OBJ  = 0x38
+    CALL_DISPLAY_LIST       = 0x40
+    UNKNOWN_0X44            = 0x44
+    INVALIDATE_VTX_CACHE    = 0x48
+    LOAD_BP_REG             = 0x61
+
+    # Draw commands
+    DRAW_QUADS              = 0x80
+    DRAW_TRIS               = 0x90
+    DRAW_TRI_STRIP          = 0x98
+    DRAW_TRI_STRIP_INDEXED  = 0x99 # not in tockdom wiki
+    DRAW_TRI_FAN            = 0xA0
+    DRAW_LINES              = 0xA8
+    DRAW_LINE_STRIP         = 0xB0
+    DRAW_POINTS             = 0xB0
+
+Vec3 = namedtuple("Vec3", "x y z")
 
 def extract_models(in_path: str, out_dir: str):
     print(f"\nExtracting objects:")
@@ -70,52 +96,79 @@ def extract_models(in_path: str, out_dir: str):
 
             f.write(f"o {Path(in_path).stem}_{i}_{world_object.name}\n")
 
-            last_index = 0
+            index_v = 1
+            index_vn = 1
             for ii, surf in enumerate(world_object.surfaces):
                 f.write(f"usemtl {hex(surf.off_material)}\n")
                 print(f"{ii}..", end="")
-                strips = get_strips(surf, world_object)
+                drawlist = parse_drawlist(surf, world_object)
+
+                has_normals = True
 
                 # Write Vs (once)
                 if ii == 0:
-                    vertices = []
+                    v_positions = []
                     for v in surf.v_buf:
-                        vertices.append(Vec3(v.x, v.y, v.z))
+                        v_positions.append(Vec3(v.x, v.y, v.z))
                     
-                    for v in vertices:
+                    for v in v_positions:
                         x = (v.x / pow(2, world_object.v_divisor) * scale_x + origin_x) * 0.1,
                         y = (v.y / pow(2, world_object.v_divisor) * scale_y + origin_y) * 0.1,
                         z = (v.z / pow(2, world_object.v_divisor) * scale_z + origin_z) * 0.1,
                         f.write(f"v {x[0]} {y[0]} {z[0]}\n")
 
                 # Exit if something went wrong.
-                if strips == []:
+                if drawlist == []:
                     continue
 
+                # Write Normals
+                for vertices in drawlist:
+                    for i in range(len(vertices)):
+                        normal = vertices[i].get("normal")
+                        if normal == None:
+                            continue
+                        f.write(f"vn {normal.x} {normal.y} {normal.z}\n")
+
                 # Write UVs
-                for indices in strips:
-                    for i in range(len(indices)):
-                        u = indices[i].u / pow(2, 10)
-                        v = indices[i].v / pow(2, 10)
+                for vertices in drawlist:
+                    for i in range(len(vertices)):
+                        u = vertices[i].get("u", 0) / pow(2, 10)
+                        v = vertices[i].get("v", 0) / pow(2, 10)
                         f.write(f"vt {u} {v}\n")
 
                 # Write strips
                 
-                for indices in strips:
-                    for i in range(len(indices)-2):
-                        va = indices[i].i + 1
-                        vb = indices[i+1].i + 1
-                        vc = indices[i+2].i + 1
-                        vta = last_index + i + 1
-                        vtb = last_index + i + 1 + 1
-                        vtc = last_index + i + 1 + 2
-                        f.write(f"f {va}/{vta} {vb}/{vtb} {vc}/{vtc}\n")
-                    last_index += len(indices)
+                for vertices in drawlist:
+                    for i in range(len(vertices)-2):
+                        # Position
+                        va = vertices[i]["idx"] + 1
+                        vb = vertices[i+1]["idx"] + 1
+                        vc = vertices[i+2]["idx"] + 1
+
+                        # UV
+                        vta = index_v + i
+                        vtb = index_v + i + 1
+                        vtc = index_v + i + 2
+                        
+                        # Normals
+                        vna, vnb, vnc = [""]*3
+                        if has_normals:
+                            vna = index_vn + i
+                            vnb = index_vn + i + 1
+                            vnc = index_vn + i + 2
+                        
+                        # Colors
+                        """ obj doesn't support vertex  colors. """
+
+                        f.write(f"f {va}/{vta}/{vna} {vb}/{vtb}/{vnb} {vc}/{vtc}/{vnc}\n")
+                    index_v += len(vertices)
+                    if has_normals:
+                        index_vn += len(vertices)
 
             print("Done")
 
 
-def get_strips(surf, obj) -> list:
+def parse_drawlist(surf, obj) -> list:
     # Indices
     surfbuf = surf.data.data
     strips = []
@@ -127,53 +180,65 @@ def get_strips(surf, obj) -> list:
         num_idx = struct.unpack('>H', surfbuf[head+2:head+4])[0]
         head += 4
 
-        indices = []
-        match command:
-            case 0x99:
+        vertices = []
+        match GfxCmd(command):
+            case GfxCmd.DRAW_TRI_STRIP_INDEXED:
                 for _ in range(num_idx):
+                    vertex = {}
 
                     if obj.data_c == None:
                         # Vertex format isn't defined, use default.
-                        # 9B: iinnnuuuu
+                        # 9B: ii_nnn_uu_vv
                         ibuf = surfbuf[head:head+9]
                         head += 9
 
-                        idx = struct.unpack('>H', ibuf[0:2])[0]
-                        
-                        # skip 3B normal
-
-                        u = struct.unpack('>h', ibuf[5:7])[0]
-                        v = struct.unpack('>h', ibuf[7:9])[0]
+                        vertex["idx"] = struct.unpack('>H', ibuf[0:2])[0]
+                        normal = [
+                                struct.unpack('b', ibuf[2:3])[0],
+                                struct.unpack('b', ibuf[3:4])[0],
+                                struct.unpack('b', ibuf[4:5])[0]
+                            ]
+                        normal /= numpy.linalg.norm(normal)
+                        vertex["normal"] = Vec3(normal[0], normal[1], normal[2])
+                        vertex["u"] = struct.unpack('>h', ibuf[5:7])[0]
+                        vertex["v"] = struct.unpack('>h', ibuf[7:9])[0]
                     
-                        indices.append(Gm2Idx(idx, u, v))
                     
                     else:
+                        # Vertex format is not understood yet. This is a guess.
+                        # 11B: ii_nnn_cc_uu_vv
                         ibuf = surfbuf[head:head+11]
                         head += 11
 
-                        idx = struct.unpack('>H', ibuf[0:2])[0]
-                        _normal = ibuf[2:5]
+                        vertex["idx"] = struct.unpack('>H', ibuf[0:2])[0]
+                        normal = [
+                                struct.unpack('b', ibuf[2:3])[0],
+                                struct.unpack('b', ibuf[3:4])[0],
+                                struct.unpack('b', ibuf[4:5])[0]
+                            ]
+                        normal /= numpy.linalg.norm(normal)
+                        vertex["normal"] = Vec3(normal[0], normal[1], normal[2])
                         _color = ibuf[5:7]
-                        u = struct.unpack('>h', ibuf[7:9])[0]
-                        v = struct.unpack('>h', ibuf[9:11])[0]
-
-                        indices.append(Gm2Idx(idx, u, v))
+                        vertex["u"] = struct.unpack('>h', ibuf[7:9])[0]
+                        vertex["v"] = struct.unpack('>h', ibuf[9:11])[0]
+                    
+                    vertices.append(vertex)
 
             case _:
-                print(f"ERR: unk_0 == {hex(command)}")
+                print(f"ERR: unknown command: {hex(command)}")
                 return []
         
         
         new_indices = []
         for i in range(num_idx-2):
             if i % 2 == 0:
-                new_indices.append(indices[i])
-                new_indices.append(indices[i+1])
-                new_indices.append(indices[i+2])
+                new_indices.append(vertices[i])
+                new_indices.append(vertices[i+1])
+                new_indices.append(vertices[i+2])
             else:
-                new_indices.append(indices[i])
-                new_indices.append(indices[i+2])
-                new_indices.append(indices[i+1])
+                new_indices.append(vertices[i])
+                new_indices.append(vertices[i+2])
+                new_indices.append(vertices[i+1])
         strips.append(new_indices)
         i_remaining -= num_idx
 
